@@ -4,7 +4,7 @@ import numpy as np
 import math
 import scipy.interpolate as sp
 
-module_name = "CM600DX-24T"
+#module_name = "CM600DX-24T"
 vcc_value = 600.0
 rth_tr_value = 0.048
 rth_di_value = 0.076
@@ -383,6 +383,6 @@ print('Total IGBT losses ' + str(p_igbt_total))
 print('Tj diode is ' + str(tj_fwd))
 print('Diode switch losses are ' + str(e_sw_err_total))
 print('Diode cond losses are ' + str(p_fwd_cond_total))
-print(p_igbt_cond)
+print(p_igbt)
 print(output_current_tot)
 print(output_voltage_tot)
