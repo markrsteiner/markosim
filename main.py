@@ -335,6 +335,7 @@ while degree_count <= 359.0:
     e_sw_on_from_rg_on_curve = sp.interp1d(e_rg_from_e_on_125, e_on_from_e_on_125)
     e_sw_on_from_rg_on = e_sw_on_from_rg_on_curve(input_rg_on)
     # e_sw_off_from_rg_off = esw_solver(e_rg_from_e_off_125, e_off_from_e_off_125, e_rg_from_e_off_150, e_off_from_e_off_150, tj_try_igbt, input_rg_off, 10)
+    errFromRgErrcurve = sp.interp1d(e_rg_from_e_rg_125, e_rr_from_e_rg_125)
     errFromRgErr = errFromRgErrcurve(input_rg_off)
     # debug
     output_current_tot.append(output_current)

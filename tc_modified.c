@@ -116,56 +116,39 @@ namespace bragarbarag.bragarbaragElectric.bragarbarag.Calc
       double dtInputCaseTemp = simCon.dtInputCaseTemp;
       ///////
 
-      for (int moduleCount = 0; moduleCount < moduleNum; ++moduleCount) //for each module
-      {
-        RthTrValue[moduleCount] = (double) modTmp[moduleCount].BaseInfo.RthTrValue; // get rth tr
-        RthDiValue[moduleCount] = (double) modTmp[moduleCount].BaseInfo.RthDiValue; // get rth fwd
-        ThermalContactResistanceValue[moduleCount] = (double) modTmp[moduleCount].BaseInfo.ThermalContactResistanceValue; // get tcr
-        dtPIGBT[moduleCount] = modSimResult[moduleCount].dtPIGBT; // get pigbt
-        dtFRD[moduleCount] = modSimResult[moduleCount].dtPFRD; //get pfwd
-        modSimResult[moduleCount].lt_Tr_Temp.Clear(); //initialize this value
-        modSimResult[moduleCount].lt_Di_Temp.Clear(); //initialize this value
-        modSimResult[moduleCount].lt_Temp_Rad.Clear(); //initialize this value
-        modSimResult[moduleCount].lt_Temp_Time.Clear(); //initialize this value
-        modSimResult[moduleCount].lt_Tr_Temp_Powerloss.Clear(); //initialize this value
-        modSimResult[moduleCount].lt_Di_Temp_Powerloss.Clear(); //initialize this value
-        modSimResult[moduleCount].dtTrTcmax = modSimResult[moduleCount].dtTjIGBT - modSimResult[moduleCount].dtdTjIGBT; //find the max tc value
-        modSimResult[moduleCount].dtDiTcmax = modSimResult[moduleCount].dtTjFRD - modSimResult[moduleCount].dtdTjFRD; //find the max tc value
+
+        RthTrValue = (double) modTmp.BaseInfo.RthTrValue; // get rth tr
+        RthDiValue = (double) modTmp.BaseInfo.RthDiValue; // get rth fwd
+        ThermalContactResistanceValue = (double) modTmp.BaseInfo.ThermalContactResistanceValue; // get tcr
+        dtPIGBT = modSimResult.dtPIGBT; // get pigbt
+        dtFRD = modSimResult.dtPFRD; //get pfwd
+        modSimResult.lt_Tr_Temp.Clear(); //initialize this value
+        modSimResult.lt_Di_Temp.Clear(); //initialize this value
+        modSimResult.lt_Temp_Rad.Clear(); //initialize this value
+        modSimResult.lt_Temp_Time.Clear(); //initialize this value
+        modSimResult.lt_Tr_Temp_Powerloss.Clear(); //initialize this value
+        modSimResult.lt_Di_Temp_Powerloss.Clear(); //initialize this value
+        modSimResult.dtTrTcmax = modSimResult.dtTjIGBT - modSimResult.dtdTjIGBT; //find the max tc value
+        modSimResult.dtDiTcmax = modSimResult.dtTjFRD - modSimResult.dtdTjFRD; //find the max tc value
         for (int degreeCount = 0; degreeCount < 360; ++degreeCount) //for each degree in a circle
         {
           numArray8[degreeCount] = modSimResult[0].ltTime[degreeCount]; //used for chopper calculations
-//          if (circuitType == CircuitType.Chopper)
-//            numArray8[degreeCount] /= 1000.0;
-          TrInstPowerLoss[moduleCount, degreeCount] = modSimResult[moduleCount].lt_Tr_Powerloss[degreeCount]; //extract igbt loss into this array
-          DiInstPowerLoss[moduleCount, degreeCount] = modSimResult[moduleCount].lt_Di_Powerloss[degreeCount]; //extract fwd loss into this array
+          TrInstPowerLoss[degreeCount] = modSimResult.lt_Tr_Powerloss[degreeCount]; //extract igbt loss into this array
+          DiInstPowerLoss[degreeCount] = modSimResult.lt_Di_Powerloss[degreeCount]; //extract fwd loss into this array
         }
-      }
       List<int> intList = new List<int>();
       double resistanceByTime1 = modTmp[0].BaseInfo.GetTransisterTransientThermalResistanceByTime(10.0); //get 10sec's transient thermal impedance igbt
       double resistanceByTime2 = modTmp[0].BaseInfo.GetDiodeTransientThermalResistanceByTime(10.0); // same as above, fwd
-      double secondsPerCycleDegree = circuitType == CircuitType.Chopper ? numArray8[1] - numArray8[0] : 1.0 / simCon.dtInputFo / 360.0; //set sec/cycle*deg
-      double time1 = circuitType == CircuitType.Chopper ? numArray8[0] : secondsPerCycleDegree / 2.0; //set time1
+      double secondsPerCycleDegree = 1.0 / simCon.dtInputFo / 360.0; //set sec/cycle*deg
+      double time1 = secondsPerCycleDegree / 2.0; //set time1
       double timeStep = 0.0; //init timestep
-      for (int moduleCount = 0; moduleCount < moduleNum; ++moduleCount) //for each module
-      {
-        if (modTmp[moduleCount].BaseInfo.TrFreqAndThermoDict.ContainsKey(secondsPerCycleDegree)) //if thermo dict available
-        {
-          for (int dictCount = 0; dictCount < modTmp[moduleCount].BaseInfo.TrFreqAndThermoDict[secondsPerCycleDegree].Count; ++dictCount)
+
+          for (int dictCount = 0; dictCount < modTmp.BaseInfo.TrFreqAndThermoDict[secondsPerCycleDegree].Count; ++dictCount)
           {
-            TrFreqAndThermoDict[moduleCount, dictCount] = modTmp[moduleCount].BaseInfo.TrFreqAndThermoDict[secondsPerCycleDegree][dictCount]; //extract freq and thermo dict for each module
-            DiFreqAndThermoDict[moduleCount, dictCount] = modTmp[moduleCount].BaseInfo.DiFreqAndThermoDict[secondsPerCycleDegree][dictCount]; //extract freq and thermo dict for each module
+            TrFreqAndThermoDict[dictCount] = modTmp.BaseInfo.TrFreqAndThermoDict[secondsPerCycleDegree][dictCount]; //extract freq and thermo dict for each module
+            DiFreqAndThermoDict[dictCount] = modTmp.BaseInfo.DiFreqAndThermoDict[secondsPerCycleDegree][dictCount]; //extract freq and thermo dict for each module
           }
-        }
-        else
-        {
-          intList.Add(moduleCount);
-          for (int moduleCountAux = 0; moduleCountAux < moduleCount; ++moduleCountAux)
-          {
-            if (modTmp[moduleCountAux] == modTmp[moduleCount])
-              intList.Remove(moduleCount);
-          }
-        }
-      }
+
       while (time1 <= 10.0) //until 10sec
       {
         timeStep += secondsPerCycleDegree * 360.0; //add 1 full cycle to timestep
@@ -173,90 +156,67 @@ namespace bragarbarag.bragarbaragElectric.bragarbarag.Calc
         double resistanceByTime4 = modTmp[0].BaseInfo.GetDiodeTransientThermalResistanceByTime(timeStep); // same as above, fwd
         for (int degreeCount = 0; degreeCount < 360; ++degreeCount)
         {
-          foreach (int moduleCount in intList)
-          {
-            TrFreqAndThermoDict[moduleCount, degreeCount] += modTmp[moduleCount].BaseInfo.GetTransisterTransientThermalResistanceByTime(time1);  //get trans rth at time1 igbt
-            DiFreqAndThermoDict[moduleCount, degreeCount] += modTmp[moduleCount].BaseInfo.GetDiodeTransientThermalResistanceByTime(time1); //same as above, fwd
-          }
+
+            TrFreqAndThermoDict[degreeCount] += GetTransisterTransientThermalResistanceByTime(time1);  //get trans rth at time1 igbt
+            DiFreqAndThermoDict[degreeCount] += GetDiodeTransientThermalResistanceByTime(time1); //same as above, fwd
+
           time1 += secondsPerCycleDegree; //increment
         }
         if (resistanceByTime3 / resistanceByTime1 >= 0.99 && resistanceByTime4 / resistanceByTime2 >= 0.99) //stop when we get to within 99% of 10sec rth
           break;
       }
-      foreach (int moduleCount in intList)
-      {
-        modTmp[moduleCount].BaseInfo.TrFreqAndThermoDict[secondsPerCycleDegree] = new List<double>();
-        modTmp[moduleCount].BaseInfo.DiFreqAndThermoDict[secondsPerCycleDegree] = new List<double>();
+
+        modTmp.BaseInfo.TrFreqAndThermoDict[secondsPerCycleDegree] = new List<double>();
+        modTmp.BaseInfo.DiFreqAndThermoDict[secondsPerCycleDegree] = new List<double>();
         for (int degreeCount = 0; degreeCount < 360; ++degreeCount) //not sure what this does exactly
         {
-          modTmp[moduleCount].BaseInfo.TrFreqAndThermoDict[secondsPerCycleDegree].Add(TrFreqAndThermoDict[moduleCount, degreeCount]);
-          modTmp[moduleCount].BaseInfo.DiFreqAndThermoDict[secondsPerCycleDegree].Add(DiFreqAndThermoDict[moduleCount, degreeCount]);
+          modTmp.BaseInfo.TrFreqAndThermoDict[secondsPerCycleDegree].Add(TrFreqAndThermoDict[degreeCount]);
+          modTmp.BaseInfo.DiFreqAndThermoDict[secondsPerCycleDegree].Add(DiFreqAndThermoDict[degreeCount]);
         }
-      }
-      for (int moduleCount = 0; moduleCount < moduleNum; ++moduleCount) //not sure what this does
-      {
-        if (TrFreqAndThermoDict[moduleCount, 0] == 0.0)
+
+        if (TrFreqAndThermoDict[0] == 0.0)
         {
-          for (int moduleCountAux = 0; moduleCountAux < modTmp[moduleCount].BaseInfo.TrFreqAndThermoDict[secondsPerCycleDegree].Count; ++moduleCountAux)
+          for (int moduleCountAux = 0; moduleCountAux < modTmp.BaseInfo.TrFreqAndThermoDict[secondsPerCycleDegree].Count; ++moduleCountAux)
           {
-            TrFreqAndThermoDict[moduleCount, moduleCountAux] = modTmp[moduleCount].BaseInfo.TrFreqAndThermoDict[secondsPerCycleDegree][moduleCountAux];
-            DiFreqAndThermoDict[moduleCount, moduleCountAux] = modTmp[moduleCount].BaseInfo.DiFreqAndThermoDict[secondsPerCycleDegree][moduleCountAux];
+            TrFreqAndThermoDict[moduleCountAux] = modTmp.BaseInfo.TrFreqAndThermoDict[secondsPerCycleDegree][moduleCountAux];
+            DiFreqAndThermoDict[moduleCountAux] = modTmp.BaseInfo.DiFreqAndThermoDict[secondsPerCycleDegree][moduleCountAux];
           }
         }
-      }
       for (int degreeCount = 0; degreeCount < 360; ++degreeCount)
       {
-        for (int moduleCount = 0; moduleCount < moduleNum; ++moduleCount)
-        {
-          TjIGBT[moduleCount] = dtInputCaseTemp + dtPIGBT[moduleCount] * RthTrValue[moduleCount] + ThermalContactResistanceValue[moduleCount] * (dtPIGBT[moduleCount] + dtFRD[moduleCount]);
-          TjFWD[moduleCount] = dtInputCaseTemp + dtFRD[moduleCount] * RthDiValue[moduleCount] + ThermalContactResistanceValue[moduleCount] * (dtPIGBT[moduleCount] + dtFRD[moduleCount]);
-//          if (modTmp[moduleCount].Segment != ModuleSegment.OneInOne && modTmp[moduleCount].Segment != ModuleSegment.OneInOneDiode)
-//          {
-//            if (simCon.modType == ModulationType.MotorLock && (modTmp[moduleCount].Segment == ModuleSegment.SixInOne || modTmp[moduleCount].Segment == ModuleSegment.SevenInOne || modTmp[moduleCount].Segment == ModuleSegment.CIB))
-//            {
-//              double num = (dtPIGBT[0] + dtFRD[1] + dtPIGBT[2] + dtFRD[3] + dtPIGBT[4] + dtFRD[5]) / 6.0;
-//              TjIGBT[moduleCount] = dtInputCaseTemp + dtPIGBT[moduleCount] * RthTrValue[moduleCount] + ThermalContactResistanceValue[moduleCount] * num;
-//              TjFWD[moduleCount] = dtInputCaseTemp + dtFRD[moduleCount] * RthDiValue[moduleCount] + ThermalContactResistanceValue[moduleCount] * num;
-//            }
-//            else if (circuitType != CircuitType.Sinusoidal || circuitType == CircuitType.Sinusoidal && (simCon.modType == ModulationType.TwoPhase2 || simCon.modType == ModulationType.HighSideChopping))
-//            {
-//              int moduleCountAux2 = moduleCount % 2 == 0 ? moduleCount + 1 : moduleCount - 1;
-//              double num = (dtPIGBT[moduleCount] + dtFRD[moduleCount] + dtPIGBT[moduleCountAux2] + dtFRD[moduleCountAux2]) / 2.0;
-//              TjIGBT[moduleCount] = dtInputCaseTemp + dtPIGBT[moduleCount] * RthTrValue[moduleCount] + ThermalContactResistanceValue[moduleCount] * num;
-//              TjFWD[moduleCount] = dtInputCaseTemp + dtFRD[moduleCount] * RthDiValue[moduleCount] + ThermalContactResistanceValue[moduleCount] * num;
-//            }
-//          }
+          TjIGBT = dtInputCaseTemp + dtPIGBT * RthTrValue + ThermalContactResistanceValue * (dtPIGBT + dtFRD);
+          TjFWD = dtInputCaseTemp + dtFRD * RthDiValue + ThermalContactResistanceValue * (dtPIGBT + dtFRD);
 
-          TjIGBT[moduleCount] -= (TrInstPowerLoss[moduleCount, 359] - dtPIGBT[moduleCount]) * TrFreqAndThermoDict[moduleCount, degreeCount];
-          TjFWD[moduleCount] -= (DiInstPowerLoss[moduleCount, 359] - dtFRD[moduleCount]) * DiFreqAndThermoDict[moduleCount, degreeCount];
-          TrFreqAndThermoDict[moduleCount, degreeCount] += modTmp[moduleCount].BaseInfo.GetTransisterTransientThermalResistanceByTime(time1);
-          DiFreqAndThermoDict[moduleCount, degreeCount] += modTmp[moduleCount].BaseInfo.GetDiodeTransientThermalResistanceByTime(time1);
-          TjIGBT[moduleCount] += (TrInstPowerLoss[moduleCount, 0] - dtPIGBT[moduleCount]) * TrFreqAndThermoDict[moduleCount, degreeCount];
-          TjFWD[moduleCount] += (DiInstPowerLoss[moduleCount, 0] - dtFRD[moduleCount]) * DiFreqAndThermoDict[moduleCount, degreeCount];
-        }
+          TjIGBT -= (TrInstPowerLoss[359] - dtPIGBT) * TrFreqAndThermoDict[degreeCount];
+          TjFWD -= (DiInstPowerLoss[359] - dtFRD) * DiFreqAndThermoDict[degreeCount];
+          TrFreqAndThermoDict[degreeCount] += modTmp.BaseInfo.GetTransisterTransientThermalResistanceByTime(time1);
+          DiFreqAndThermoDict[degreeCount] += modTmp.BaseInfo.GetDiodeTransientThermalResistanceByTime(time1);
+          TjIGBT += (TrInstPowerLoss[0] - dtPIGBT) * TrFreqAndThermoDict[degreeCount];
+          TjFWD += (DiInstPowerLoss[0] - dtFRD) * DiFreqAndThermoDict[degreeCount];
+
         time1 += secondsPerCycleDegree;
         for (int degreeCountAux = 1; degreeCountAux < 360; ++degreeCountAux)
         {
           for (int moduleCount = 0; moduleCount < moduleNum; ++moduleCount)
           {
-            double TrPowerLossDelta = TrInstPowerLoss[moduleCount, degreeCountAux] - TrInstPowerLoss[moduleCount, degreeCountAux - 1];
-            double DiPowerLossDelta = DiInstPowerLoss[moduleCount, degreeCountAux] - DiInstPowerLoss[moduleCount, degreeCountAux - 1];
-            TjIGBT[moduleCount] += TrPowerLossDelta * TrFreqAndThermoDict[moduleCount, (360 + degreeCount - degreeCountAux) % 360];
-            TjFWD[moduleCount] += DiPowerLossDelta * DiFreqAndThermoDict[moduleCount, (360 + degreeCount - degreeCountAux) % 360];
+            double TrPowerLossDelta = TrInstPowerLoss[degreeCountAux] - TrInstPowerLoss[degreeCountAux - 1];
+            double DiPowerLossDelta = DiInstPowerLoss[degreeCountAux] - DiInstPowerLoss[degreeCountAux - 1];
+            TjIGBT += TrPowerLossDelta * TrFreqAndThermoDict[(360 + degreeCount - degreeCountAux) % 360];
+            TjFWD += DiPowerLossDelta * DiFreqAndThermoDict[(360 + degreeCount - degreeCountAux) % 360];
           }
         }
-        for (int moduleCount = 0; moduleCount < moduleNum; ++moduleCount)
-        {
-          modSimResult[moduleCount].lt_Temp_Time.Add(modSimResult[moduleCount].ltTime[degreeCount] / 1000.0);
-          modSimResult[moduleCount].lt_Temp_Rad.Add((double) (degreeCount + 1));
-          modSimResult[moduleCount].lt_Tr_Temp.Add(TjIGBT[moduleCount]);
-          modSimResult[moduleCount].lt_Tr_Temp_Powerloss.Add(TrInstPowerLoss[moduleCount, degreeCount]);
-          modSimResult[moduleCount].lt_Di_Temp.Add(TjFWD[moduleCount]);
-          modSimResult[moduleCount].lt_Di_Temp_Powerloss.Add(DiInstPowerLoss[moduleCount, degreeCount]);
-        }
+
+          modSimResult.lt_Temp_Time.Add(modSimResult.ltTime[degreeCount] / 1000.0);
+          modSimResult.lt_Temp_Rad.Add((double) (degreeCount + 1));
+          modSimResult.lt_Tr_Temp.Add(TjIGBT);
+          modSimResult.lt_Tr_Temp_Powerloss.Add(TrInstPowerLoss[degreeCount]);
+          modSimResult.lt_Di_Temp.Add(TjFWD);
+          modSimResult.lt_Di_Temp_Powerloss.Add(DiInstPowerLoss[degreeCount]);
       }
       CalculationCommonMethods.CalcTemperatureStatistics(modSimResult, moduleNum);
     }
+
+//end
 
     private static void CalcTemperatureStatistics(ModuleSimulationResult[] modSimResult, int moduleNum)
     {
