@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import sim_tools
+import tcmax
 
 
 def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
@@ -50,6 +51,8 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
         e_sw_off = []
         e_sw_on_Eoff = []
         p_fwd_cond = []
+        p_total_igbt = []
+        p_total_fwd = []
         e_sw_err = []
         p_igbt = []
         p_fwd = []
@@ -95,15 +98,15 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
                                                     ic_from_vcesat_150, vcesat_from_vcesat_150, tj_try_igbt,
                                                     igbt_current,
                                                     2400))
-                dtTr1Pvce = igbt_current * time_division * VceAtIc * output_voltage[0] / input_bus_voltage / 1000.0
+                igbt_p_vce = igbt_current * time_division * VceAtIc * output_voltage[0] / input_bus_voltage / 1000.0
                 ESwOn = sim_tools.esw_solver(ic_from_e_sw_on_125, e_sw_on_from_e_sw_on_125, ic_from_e_sw_on_150,
                                              e_sw_on_from_e_sw_on_150,
                                              tj_try_igbt, igbt_current, 2400)
                 ESwOff = sim_tools.esw_solver(ic_from_e_sw_off_125, e_sw_off_from_e_sw_off_125, ic_from_e_sw_off_150,
                                               e_sw_off_from_e_sw_off_150, tj_try_igbt, igbt_current, 2400)
                 if 1.0 > output_voltage[0] / input_bus_voltage > 0.0:
-                    dtTr1EonFcoRatio = switches_per_cycle_per_degree * ESwOn
-                    dtTr1EoffFcoRatio = switches_per_cycle_per_degree * ESwOff
+                    igbt_e_sw_on_fco_ratio = switches_per_cycle_per_degree * ESwOn
+                    igbt_e_sw_off_fco_ratio = switches_per_cycle_per_degree * ESwOff
             if diode_current >= 0.0:
                 VfAtIc = sim_tools.vce_from_tj_ic_solver(ie_from_vecsat_25, vecsat_from_vecsat_25, ie_from_vecsat_125,
                                                          vecsat_from_vecsat_125, ie_from_vecsat_150,
@@ -111,23 +114,24 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
                                                          tj_try_fwd,
                                                          diode_current, 2400)
 
-                dtDi1Pvce = diode_current * time_division * VfAtIc * output_voltage[0] / input_bus_voltage / 1000.0
+                fwd_p_vce = diode_current * time_division * VfAtIc * output_voltage[0] / input_bus_voltage / 1000.0
                 ErrFromIc = sim_tools.esw_solver(ic_from_e_rr_125, e_rr_from_e_rr_125, ic_from_e_rr_150,
                                                  e_rr_from_e_rr_150,
                                                  tj_try_fwd,
                                                  diode_current, 2400)
 
             if 1.0 > output_voltage[0] / input_bus_voltage > 0.0:
-                dtDi1ErrFcoRatio = switches_per_cycle_per_degree * ErrFromIc
+                fwd_e_rr_fco_ratio = switches_per_cycle_per_degree * ErrFromIc
 
-            VccRatio = input_bus_voltage / vcc_value
+            vcc_ratio = input_bus_voltage / vcc_value
 
-            eswOnFromRgEswOn = sim_tools.esw_solver(e_rg_from_e_on_125, e_on_from_e_on_125, e_rg_from_e_on_150,
+            e_sw_on_from_rg_e_sw_on = sim_tools.esw_solver(e_rg_from_e_on_125, e_on_from_e_on_125, e_rg_from_e_on_150,
                                                     e_on_from_e_on_150,
                                                     tj_try_igbt, input_rg_on, 10)
 
-            eswOffFromRgEswOff = sim_tools.esw_solver(e_rg_from_e_off_125, e_off_from_e_off_125, e_rg_from_e_off_150,
-                                                      e_off_from_e_off_150, tj_try_igbt, input_rg_off, 10)
+            e_sw_off_from_rg_e_sw_off = sim_tools.esw_solver(e_rg_from_e_off_125, e_off_from_e_off_125,
+                                                             e_rg_from_e_off_150,
+                                                             e_off_from_e_off_150, tj_try_igbt, input_rg_off, 10)
 
             errFromRgErr = sim_tools.esw_solver(e_rg_from_e_rg_125, e_rr_from_e_rg_125, e_rg_from_e_rg_150,
                                                 e_rr_from_e_rg_150,
@@ -136,20 +140,23 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
             output_current_tot.append(output_current)
             output_voltage_tot.append(output_voltage[0])
 
-            p_igbt_cond.append(dtTr1Pvce * freq_output / 1000.0)
-            e_sw_on.append(dtTr1EonFcoRatio * freq_output / 1000.0 * VccRatio * eswOnFromRgEswOn)
-            e_sw_off.append(dtTr1EoffFcoRatio * freq_output / 1000.0 * VccRatio * eswOffFromRgEswOff)
+            p_igbt_cond.append(igbt_p_vce * freq_output / 1000.0)
+            e_sw_on.append(igbt_e_sw_on_fco_ratio * freq_output / 1000.0 * vcc_ratio * e_sw_on_from_rg_e_sw_on)
+            e_sw_off.append(igbt_e_sw_off_fco_ratio * freq_output / 1000.0 * vcc_ratio * e_sw_off_from_rg_e_sw_off)
             e_sw_on_Eoff.append((
-                                        dtTr1EonFcoRatio * VccRatio * eswOnFromRgEswOn + dtTr1EoffFcoRatio * VccRatio * eswOffFromRgEswOff) * freq_output / 1000.0)
-            p_fwd_cond.append(dtDi1Pvce * freq_output / 1000.0)
-            e_sw_err.append(dtDi1ErrFcoRatio * freq_output / 1000.0 * VccRatio * errFromRgErr)
+                                        igbt_e_sw_on_fco_ratio * vcc_ratio * e_sw_on_from_rg_e_sw_on + igbt_e_sw_off_fco_ratio * vcc_ratio * e_sw_off_from_rg_e_sw_off) * freq_output / 1000.0)
+            p_fwd_cond.append(fwd_p_vce * freq_output / 1000.0)
+            e_sw_err.append(fwd_e_rr_fco_ratio * freq_output / 1000.0 * vcc_ratio * errFromRgErr)
             p_igbt.append((
-                                  dtTr1EonFcoRatio * VccRatio * eswOnFromRgEswOn + dtTr1EoffFcoRatio * VccRatio * eswOffFromRgEswOff) * freq_output / 1000.0 + dtTr1Pvce * freq_output / 1000.0)
+                                  igbt_e_sw_on_fco_ratio * vcc_ratio * e_sw_on_from_rg_e_sw_on + igbt_e_sw_off_fco_ratio * vcc_ratio * e_sw_off_from_rg_e_sw_off) * freq_output / 1000.0 + igbt_p_vce * freq_output / 1000.0)
             p_fwd.append(
-                dtDi1ErrFcoRatio * errFromRgErr * freq_output / 1000.0 * VccRatio + dtDi1Pvce * freq_output / 1000.0)
+                fwd_e_rr_fco_ratio * errFromRgErr * freq_output / 1000.0 * vcc_ratio + fwd_p_vce * freq_output / 1000.0)
+            p_total_igbt.append((igbt_p_vce + (
+                    igbt_e_sw_on_fco_ratio * e_sw_on_from_rg_e_sw_on + igbt_e_sw_off_fco_ratio * e_sw_off_from_rg_e_sw_off) * vcc_ratio) / time_division * 1000)
+            p_total_fwd.append((fwd_p_vce + fwd_e_rr_fco_ratio * errFromRgErr * vcc_ratio) / time_division * 1000)
             p_arm.append((
-                                 dtTr1EonFcoRatio * VccRatio * eswOnFromRgEswOn + dtTr1EoffFcoRatio * VccRatio * eswOffFromRgEswOff) * freq_output / 1000.0 + dtTr1Pvce * freq_output / 1000.0 + (
-                                 dtDi1ErrFcoRatio * errFromRgErr * freq_output / 1000.0 * VccRatio + dtDi1Pvce * freq_output / 1000.0))
+                                 igbt_e_sw_on_fco_ratio * vcc_ratio * e_sw_on_from_rg_e_sw_on + igbt_e_sw_off_fco_ratio * vcc_ratio * e_sw_off_from_rg_e_sw_off) * freq_output / 1000.0 + igbt_p_vce * freq_output / 1000.0 + (
+                                 fwd_e_rr_fco_ratio * errFromRgErr * freq_output / 1000.0 * vcc_ratio + fwd_p_vce * freq_output / 1000.0))
 
             degree_count += step
 
@@ -162,6 +169,11 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
         initflag = False
         tj_igbt_check.append(tj_igbt)
 
+    f = open('hello.txt', 'w')
+    f.write(p_igbt_cond)
+    f.write(e_sw_on)
+    f.close()
+
     p_igbt_cond_total = np.sum(p_igbt_cond)
     e_sw_on_total = np.sum(e_sw_on)
     e_sw_off_total = np.sum(e_sw_off)
@@ -172,26 +184,36 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
     p_fwd_cond_total = np.sum(p_fwd_cond)
     e_sw_err_total = np.sum(e_sw_err)
 
-    p_igbt_tcmax = sim_tools.doublearray_maker(p_igbt)
-    p_fwd_tcmax = sim_tools.doublearray_maker(p_fwd)
+    p_igbt_tcmax = sim_tools.doublearray_maker(p_total_igbt)
+    p_fwd_tcmax = sim_tools.doublearray_maker(p_total_fwd)
+
+    tc_max_results = tcmax.tj_max_calculation(p_igbt_total, p_fwd_total, p_igbt_tcmax, p_fwd_tcmax, input_tc,
+                                              freq_output,
+                                              transient_thermal_values)
+
+    tj_max_igbt = tc_max_results['tj_max_igbt']
+    delta_tj_max_igbt = tj_max_igbt - delta_tc - input_tc
+    tj_max_fwd = tc_max_results['tj_max_fwd']
+    delta_tj_max_fwd = tj_max_fwd - delta_tc - input_tc
 
     results = {}
 
-    results['Tj_Ave_IGBT'] = tj_igbt
     results['P_total_IGBT'] = p_igbt_total
     results['P_cond_IGBT'] = p_igbt_cond_total
     results['E_sw_IGBT'] = e_sw_total
     results['E_sw_on_IGBT'] = e_sw_on_total
     results['E_sw_off_IGBT'] = e_sw_off_total
     results['delta_Tj_Ave_IGBT'] = delta_tj__igbt
+    results['Tj_Ave_IGBT'] = tj_igbt
+    results['delta_Tj_Max_IGBT'] = delta_tj_max_igbt
+    results['Tj_max_IGBT'] = tj_max_igbt
     results['delta_Tc_Ave'] = delta_tc
     results['P_total_FWD'] = p_fwd_total
     results['P_cond_FWD'] = p_fwd_cond_total
     results['E_rr_FWD'] = e_sw_err_total
+    results['delta_Tj_Ave_FWD'] = delta_tj__fwd
     results['Tj_Ave_FWD'] = tj_fwd
+    results['delta_Tj_Max_FWD'] = delta_tj_max_fwd
+    results['Tj_Max_FWD'] = tj_max_fwd
     results['P_arm'] = p_arm_total
-    results['List of Tj IGBTs'] = tj_igbt_check
-    results['P_IGBT_for_Tcmax'] = p_igbt_tcmax
-    results['P_FWD_for_Tcmax'] = p_fwd_tcmax
-
     return results

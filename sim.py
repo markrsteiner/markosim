@@ -237,7 +237,7 @@ m_sim_results = m_sim_output_calc(ic_from_vcesat_125, vcesat_from_vcesat_125,
                                   transient_thermal_values)
 
 print(m_sim_results)
-run_mine = False
+run_mine = True
 
 if run_mine:
     mark_sim_results = mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
@@ -271,6 +271,6 @@ if run_mine:
                                             vcc_value,
                                             transient_thermal_values)
 
-# print(mark_sim_results)
+print(mark_sim_results)
 # print(mark_sim_results['P_IGBT_for_Tcmax'])
 # print(len(mark_sim_results['P_IGBT_for_Tcmax']))

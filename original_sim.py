@@ -161,9 +161,9 @@ def m_sim_output_calc(ic_from_vcesat_125, vcesat_from_vcesat_125,
         p_arm.append(p_igbt[degree_count - 1] + p_fwd[degree_count - 1])
         degree_count += step
 
-    delta_tj__igbt = np.sum(p_igbt) * rth_tr_value
-    delta_tj__fwd = np.sum(p_fwd) * rth_di_value
-    delta_tc = np.sum(p_arm) * thermal_contact_resistance_value
+    delta_tj__igbt = np.sum(p_igbt) * transient_thermal_values['rth_tr_value']
+    delta_tj__fwd = np.sum(p_fwd) * transient_thermal_values['rth_di_value']
+    delta_tc = np.sum(p_arm) * transient_thermal_values['rth_thermal_contact']
     tj_igbt = delta_tj__igbt + delta_tc + input_tc
     tj_fwd = delta_tj__fwd + delta_tc + input_tc
 
@@ -180,30 +180,34 @@ def m_sim_output_calc(ic_from_vcesat_125, vcesat_from_vcesat_125,
     p_igbt_tcmax = sim_tools.doublearray_maker(p_total_igbt)
     p_fwd_tcmax = sim_tools.doublearray_maker(p_total_fwd)
 
+    tc_max_results = tcmax.tj_max_calculation(p_igbt_total, p_fwd_total, p_igbt_tcmax, p_fwd_tcmax, input_tc,
+                                              freq_output,
+                                              transient_thermal_values)
+
+    tj_max_igbt = tc_max_results['tj_max_igbt']
+    delta_tj_max_igbt = tj_max_igbt - delta_tc - input_tc
+    tj_max_fwd = tc_max_results['tj_max_fwd']
+    delta_tj_max_fwd = tj_max_fwd - delta_tc - input_tc
+
     results = {}
 
-    results['Tj_Ave_IGBT'] = tj_igbt
     results['P_total_IGBT'] = p_igbt_total
     results['P_cond_IGBT'] = p_igbt_cond_total
     results['E_sw_IGBT'] = e_sw_total
     results['E_sw_on_IGBT'] = e_sw_on_total
     results['E_sw_off_IGBT'] = e_sw_off_total
     results['delta_Tj_Ave_IGBT'] = delta_tj__igbt
+    results['Tj_Ave_IGBT'] = tj_igbt
+    results['delta_Tj_Max_IGBT'] = delta_tj_max_igbt
+    results['Tj_max_IGBT'] = tj_max_igbt
     results['delta_Tc_Ave'] = delta_tc
     results['P_total_FWD'] = p_fwd_total
     results['P_cond_FWD'] = p_fwd_cond_total
     results['E_rr_FWD'] = e_sw_err_total
+    results['delta_Tj_Ave_FWD'] = delta_tj__fwd
     results['Tj_Ave_FWD'] = tj_fwd
+    results['delta_Tj_Max_FWD'] = delta_tj_max_fwd
+    results['Tj_Max_FWD'] = tj_max_fwd
     results['P_arm'] = p_arm_total
-    results['P_IGBT_for_Tcmax'] = p_igbt_tcmax
-    results['P_FWD_for_Tcmax'] = p_fwd_tcmax
-
-    tc_max_results = tcmax.tj_max_calculation(p_igbt_total, p_fwd_total, p_igbt_tcmax, p_fwd_tcmax, input_tc,
-                                              freq_output,
-                                              transient_thermal_values)
-    print(max(tc_max_results['tj_igbt_list']))
-    print(max(tc_max_results['tj_fwd_list']))
-    # except:
-    #     print('TjMax Calc Failed')
 
     return results

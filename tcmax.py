@@ -27,9 +27,9 @@ def get_fwd_rth_from_time(time, transient_thermal_values):
     return rth_from_time
 
 
-def create_thermal_resistance_dict(input_fo):
-    igbt_dc_rth = get_igbt_rth_from_time(10.0)
-    fwd_dc_rth = get_fwd_rth_from_time(10.0)
+def create_thermal_resistance_dict(input_fo, transient_thermal_values):
+    igbt_dc_rth = get_igbt_rth_from_time(10.0, transient_thermal_values)
+    fwd_dc_rth = get_fwd_rth_from_time(10.0, transient_thermal_values)
     sec_per_cycle_degree = 1.0 / input_fo / 360.0
     time_value = sec_per_cycle_degree / 2.0
     time_step = 0.0
@@ -39,11 +39,11 @@ def create_thermal_resistance_dict(input_fo):
 
     while time_value <= 10.0:
         time_step += sec_per_cycle_degree * 360.0
-        igbt_trans_rth = get_igbt_rth_from_time(time_step)
-        fwd_trans_rth = get_fwd_rth_from_time(time_step)
+        igbt_trans_rth = get_igbt_rth_from_time(time_step, transient_thermal_values)
+        fwd_trans_rth = get_fwd_rth_from_time(time_step, transient_thermal_values)
         for index1 in range(0, 360):
-            rth_dict_igbt[index1] += get_igbt_rth_from_time(time_value)
-            rth_dict_fwd[index1] += get_fwd_rth_from_time(time_value)
+            rth_dict_igbt[index1] += get_igbt_rth_from_time(time_value, transient_thermal_values)
+            rth_dict_fwd[index1] += get_fwd_rth_from_time(time_value, transient_thermal_values)
             time_value += sec_per_cycle_degree
         if igbt_trans_rth / igbt_dc_rth >= 0.99 and fwd_trans_rth / fwd_dc_rth >= 0.99:
             break
@@ -58,7 +58,7 @@ def create_thermal_resistance_dict(input_fo):
 
 def tj_max_calculation(p_igbt_ave, p_fwd_ave, p_igbt_inst_list, p_fwd_inst_list, input_tc, input_fo,
                        transient_thermal_values):
-    thermo_dict = create_thermal_resistance_dict(input_fo)
+    thermo_dict = create_thermal_resistance_dict(input_fo, transient_thermal_values)
     time_value = thermo_dict['time_value']
     rth_dict_igbt = thermo_dict['igbt_thermo']
     rth_dict_fwd = thermo_dict['fwd_thermo']
@@ -82,8 +82,8 @@ def tj_max_calculation(p_igbt_ave, p_fwd_ave, p_igbt_inst_list, p_fwd_inst_list,
             index1]
         tj_fwd_inst -= (p_fwd_inst_list[359] - p_fwd_ave) * rth_dict_fwd[
             index1]
-        rth_dict_igbt[index1] += get_igbt_rth_from_time(time_value)
-        rth_dict_fwd[index1] += get_fwd_rth_from_time(time_value)
+        rth_dict_igbt[index1] += get_igbt_rth_from_time(time_value, transient_thermal_values)
+        rth_dict_fwd[index1] += get_fwd_rth_from_time(time_value, transient_thermal_values)
         tj_igbt_inst += (p_igbt_inst_list[0] - p_igbt_ave) * rth_dict_igbt[
             index1]
         tj_fwd_inst += (p_fwd_inst_list[0] - p_fwd_ave) * rth_dict_fwd[
@@ -102,6 +102,9 @@ def tj_max_calculation(p_igbt_ave, p_fwd_ave, p_igbt_inst_list, p_fwd_inst_list,
         tj_fwd_list.append(tj_fwd_inst)
         p_fwd_list.append(p_fwd_inst_list[index1])
 
+        tj_max_igbt = max(tj_igbt_list)
+        tj_max_fwd = max(tj_fwd_list)
+
     results = {}
 
     results['time_list'] = time_list
@@ -110,7 +113,7 @@ def tj_max_calculation(p_igbt_ave, p_fwd_ave, p_igbt_inst_list, p_fwd_inst_list,
     results['p_igbt_list'] = p_igbt_list
     results['tj_fwd_list'] = tj_fwd_list
     results['p_fwd_list'] = p_fwd_list
+    results['tj_max_igbt'] = tj_max_igbt
+    results['tj_max_fwd'] = tj_max_fwd
 
     return results
-
-    # CalculationCommonMethods.CalcTemperatureStatistics(modSimResult, moduleNum)
