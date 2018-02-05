@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5bc18e22-9741-4f8a-9eb2-3a9b373fa9a4" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/test.py" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/mark_sim.py" afterPath="$PROJECT_DIR$/mark_sim.py" />
-      <change beforePath="$PROJECT_DIR$/original_sim.py" afterPath="$PROJECT_DIR$/original_sim.py" />
-      <change beforePath="$PROJECT_DIR$/sim.py" afterPath="$PROJECT_DIR$/sim.py" />
       <change beforePath="$PROJECT_DIR$/sim_tools.py" afterPath="$PROJECT_DIR$/sim_tools.py" />
-      <change beforePath="$PROJECT_DIR$/tcmax.py" afterPath="$PROJECT_DIR$/tcmax.py" />
+      <change beforePath="$PROJECT_DIR$/test.py" afterPath="" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -58,8 +54,8 @@
       <file leaf-file-name="sim_tools.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/sim_tools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="328">
-              <caret line="92" column="20" lean-forward="false" selection-start-line="92" selection-start-column="20" selection-end-line="92" selection-end-column="20" />
+            <state relative-caret-position="145">
+              <caret line="53" column="47" lean-forward="false" selection-start-line="53" selection-start-column="47" selection-end-line="53" selection-end-column="47" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -75,16 +71,6 @@
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="20" lean-forward="false" selection-start-line="0" selection-start-column="20" selection-end-line="0" selection-end-column="20" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -207,12 +193,12 @@
         <option value="$PROJECT_DIR$/venv/original_sim.py" />
         <option value="$PROJECT_DIR$/main2.py" />
         <option value="$PROJECT_DIR$/m_sim_output.py" />
-        <option value="$PROJECT_DIR$/sim_tools.py" />
         <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/tcmax.py" />
         <option value="$PROJECT_DIR$/sim.py" />
         <option value="$PROJECT_DIR$/mark_sim.py" />
         <option value="$PROJECT_DIR$/original_sim.py" />
+        <option value="$PROJECT_DIR$/sim_tools.py" />
       </list>
     </option>
   </component>
@@ -552,7 +538,14 @@
       <option name="project" value="LOCAL" />
       <updated>1517615265540</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="added tjmax, cleaned up some stuff">
+      <created>1517867103142</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1517867103142</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -587,7 +580,8 @@
     <MESSAGE value="day 1" />
     <MESSAGE value="added modified c file to see what it is doing" />
     <MESSAGE value="broke out mark_sim and original_sim to their own definitions, then made 1 sim file, to run it all.&#10;&#10;also, broke out cleanup defs into their own file.&#10;&#10;from here probably need to figure out tjmax, then start working on a comparison between the two programs" />
-    <option name="LAST_COMMIT_MESSAGE" value="broke out mark_sim and original_sim to their own definitions, then made 1 sim file, to run it all.&#10;&#10;also, broke out cleanup defs into their own file.&#10;&#10;from here probably need to figure out tjmax, then start working on a comparison between the two programs" />
+    <MESSAGE value="added tjmax, cleaned up some stuff" />
+    <option name="LAST_COMMIT_MESSAGE" value="added tjmax, cleaned up some stuff" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -839,8 +833,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/sim_tools.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="92" column="20" lean-forward="false" selection-start-line="92" selection-start-column="20" selection-end-line="92" selection-end-column="20" />
+        <state relative-caret-position="145">
+          <caret line="53" column="47" lean-forward="false" selection-start-line="53" selection-start-column="47" selection-end-line="53" selection-end-column="47" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

@@ -51,7 +51,7 @@ def vce_from_tj_ic_solver(ic25, vce25, ic125, vce125, ic150, vce150, tj_in, ic_i
     current_all = threepeat_array(output1, output1, output1)
     grid_z0 = sp.griddata((temp_all, current_all), vcesat_all, (grid_tj, ic_in), method="linear")
     vce_for_temp = sp.UnivariateSpline(grid_tj,
-                                       grid_z0)  # if change to linear instead of cubic, can get same results as MelcoSIM
+                                       grid_z0)
     return vce_for_temp(tj_in)
 
 
