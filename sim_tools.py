@@ -84,3 +84,10 @@ def origin_checker(checkee):
     if not found:
         checkee = np.insert(checkee, 0, 0.0)
     return checkee
+
+
+def doublearray_maker(array_in):
+    array_out = []
+    for i in range(2 * len(array_in)):
+        array_out.append(array_in[i % len(array_in)])
+    return array_out

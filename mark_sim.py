@@ -1,9 +1,6 @@
-# This file runs and can use Tj Modulation
-from original_sim import m_sim_output_calc
 import numpy as np
 import math
 import sim_tools
-import scipy.interpolate as sp
 
 
 def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
@@ -35,14 +32,12 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
                          input_rg_on,
                          input_rg_off,
                          vcc_value,
-                         rth_tr_value,
-                         rth_di_value,
-                         thermal_contact_resistance_value):
-    tj_try_igbt = 125
-    tj_try_fwd = 125
+                         transient_thermal_values):
+    tj_try_igbt = tj_test
+    tj_try_fwd = tj_test
 
     power_factor_phi = math.acos(power_factor) * 180 / math.pi
-    step = 15
+    step = 1
     degree_count = 1.0
 
     initflag = True
@@ -158,9 +153,9 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
 
             degree_count += step
 
-        delta_tj__igbt = np.sum(p_igbt) * rth_tr_value
-        delta_tj__fwd = np.sum(p_fwd) * rth_di_value
-        delta_tc = np.sum(p_arm) * thermal_contact_resistance_value
+        delta_tj__igbt = np.sum(p_igbt) * transient_thermal_values['rth_tr_value']
+        delta_tj__fwd = np.sum(p_fwd) * transient_thermal_values['rth_di_value']
+        delta_tc = np.sum(p_arm) * transient_thermal_values['rth_thermal_contact']
         tj_igbt = delta_tj__igbt + delta_tc + input_tc
         tj_fwd = delta_tj__fwd + delta_tc + input_tc
 
@@ -176,6 +171,9 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
     p_arm_total = np.sum(p_arm)
     p_fwd_cond_total = np.sum(p_fwd_cond)
     e_sw_err_total = np.sum(e_sw_err)
+
+    p_igbt_tcmax = sim_tools.doublearray_maker(p_igbt)
+    p_fwd_tcmax = sim_tools.doublearray_maker(p_fwd)
 
     results = {}
 
@@ -193,5 +191,7 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
     results['Tj_Ave_FWD'] = tj_fwd
     results['P_arm'] = p_arm_total
     results['List of Tj IGBTs'] = tj_igbt_check
+    results['P_IGBT_for_Tcmax'] = p_igbt_tcmax
+    results['P_FWD_for_Tcmax'] = p_fwd_tcmax
 
     return results

@@ -1,7 +1,7 @@
 import numpy as np
 import math
-import scipy.interpolate as sp
 import sim_tools
+import tcmax
 
 
 def m_sim_output_calc(ic_from_vcesat_125, vcesat_from_vcesat_125,
@@ -31,9 +31,7 @@ def m_sim_output_calc(ic_from_vcesat_125, vcesat_from_vcesat_125,
                       input_rg_on,
                       input_rg_off,
                       vcc_value,
-                      rth_tr_value,
-                      rth_di_value,
-                      thermal_contact_resistance_value):
+                      transient_thermal_values):
     # switch for tj cases
     if tj_test == 125:
         ic_from_vcesat = ic_from_vcesat_125
@@ -89,6 +87,8 @@ def m_sim_output_calc(ic_from_vcesat_125, vcesat_from_vcesat_125,
     p_igbt = []
     p_fwd = []
     p_arm = []
+    p_total_igbt = []
+    p_total_fwd = []
 
     output_current_tot = []
     output_voltage_tot = []
@@ -99,7 +99,7 @@ def m_sim_output_calc(ic_from_vcesat_125, vcesat_from_vcesat_125,
     for degree_count in range(360):
         duty_cycle = []
         output_voltage = []
-        rad_delta = (degree_count - step / 2)
+        rad_delta = (degree_count + 1 - step / 2)
         duty_cycle.append((1.0 + mod_depth * math.sin(rad_delta / 180.0 * math.pi)) / 2.0)
         duty_cycle.append(1.0 - duty_cycle[0])
         duty_cycle.append((1.0 + mod_depth * math.sin((rad_delta - 120.0) / 180.0 * math.pi)) / 2.0)
@@ -155,6 +155,9 @@ def m_sim_output_calc(ic_from_vcesat_125, vcesat_from_vcesat_125,
                               igbt_e_sw_on_fco_ratio * vcc_ratio * e_sw_on_from_rg_e_sw_on + igbt_e_sw_off_fco_ratio * vcc_ratio * e_sw_off_from_rg_e_sw_off) * freq_output / 1000.0 + igbt_p_vce * freq_output / 1000.0)
         p_fwd.append(
             fwd_e_rr_fco_ratio * errFromRgErr * freq_output / 1000.0 * vcc_ratio + fwd_p_vce * freq_output / 1000.0)
+        p_total_igbt.append((igbt_p_vce + (
+                igbt_e_sw_on_fco_ratio * e_sw_on_from_rg_e_sw_on + igbt_e_sw_off_fco_ratio * e_sw_off_from_rg_e_sw_off) * vcc_ratio) / time_division * 1000)
+        p_total_fwd.append((fwd_p_vce + fwd_e_rr_fco_ratio * errFromRgErr * vcc_ratio) / time_division * 1000)
         p_arm.append(p_igbt[degree_count - 1] + p_fwd[degree_count - 1])
         degree_count += step
 
@@ -174,6 +177,9 @@ def m_sim_output_calc(ic_from_vcesat_125, vcesat_from_vcesat_125,
     p_fwd_cond_total = np.sum(p_fwd_cond)
     e_sw_err_total = np.sum(e_sw_err)
 
+    p_igbt_tcmax = sim_tools.doublearray_maker(p_total_igbt)
+    p_fwd_tcmax = sim_tools.doublearray_maker(p_total_fwd)
+
     results = {}
 
     results['Tj_Ave_IGBT'] = tj_igbt
@@ -189,5 +195,15 @@ def m_sim_output_calc(ic_from_vcesat_125, vcesat_from_vcesat_125,
     results['E_rr_FWD'] = e_sw_err_total
     results['Tj_Ave_FWD'] = tj_fwd
     results['P_arm'] = p_arm_total
+    results['P_IGBT_for_Tcmax'] = p_igbt_tcmax
+    results['P_FWD_for_Tcmax'] = p_fwd_tcmax
+
+    tc_max_results = tcmax.tj_max_calculation(p_igbt_total, p_fwd_total, p_igbt_tcmax, p_fwd_tcmax, input_tc,
+                                              freq_output,
+                                              transient_thermal_values)
+    print(max(tc_max_results['tj_igbt_list']))
+    print(max(tc_max_results['tj_fwd_list']))
+    # except:
+    #     print('TjMax Calc Failed')
 
     return results
