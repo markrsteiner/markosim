@@ -1,11 +1,17 @@
 from original_sim import m_sim_output_calc
 from mark_sim import mark_sim_output_calc
 import numpy as np
-import math
 import sim_tools
-import tcmax
+import csv
+import os.path
+import pandas as pd
 
 #### device data
+
+value_dict = sim_tools.module_file_reader()
+print(value_dict)
+
+
 
 ic_from_vcesat_25 = [1.1786726, 16.574959, 55.131268, 119.9185, 266.5271, 451.72974, 619.98773, 743.478, 953.41693]
 vcesat_from_vcesat_25 = [0.6433621, 0.7273233, 0.82184154, 0.9583944, 1.1511298, 1.3719499, 1.5157973, 1.624549,
@@ -237,7 +243,7 @@ m_sim_results = m_sim_output_calc(ic_from_vcesat_125, vcesat_from_vcesat_125,
                                   transient_thermal_values)
 
 print(m_sim_results)
-run_mine = True
+run_mine = False
 
 if run_mine:
     mark_sim_results = mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
@@ -271,6 +277,6 @@ if run_mine:
                                             vcc_value,
                                             transient_thermal_values)
 
-print(mark_sim_results)
+    print(mark_sim_results)
 # print(mark_sim_results['P_IGBT_for_Tcmax'])
 # print(len(mark_sim_results['P_IGBT_for_Tcmax']))

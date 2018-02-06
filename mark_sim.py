@@ -2,6 +2,7 @@ import numpy as np
 import math
 import sim_tools
 import tcmax
+import time
 
 
 def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
@@ -39,7 +40,19 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
 
     power_factor_phi = math.acos(power_factor) * 180 / math.pi
     step = 1
-    degree_count = 1.0
+
+    ic_from_e_sw_on_125 = sim_tools.origin_checker(ic_from_e_sw_on_125)
+    e_sw_on_from_e_sw_on_125 = sim_tools.origin_checker(e_sw_on_from_e_sw_on_125)
+    ic_from_e_sw_on_150 = sim_tools.origin_checker(ic_from_e_sw_on_150)
+    e_sw_on_from_e_sw_on_150 = sim_tools.origin_checker(e_sw_on_from_e_sw_on_150)
+    ic_from_e_sw_off_125 = sim_tools.origin_checker(ic_from_e_sw_off_125)
+    e_sw_off_from_e_sw_off_125 = sim_tools.origin_checker(e_sw_off_from_e_sw_off_125)
+    ic_from_e_sw_off_150 = sim_tools.origin_checker(ic_from_e_sw_off_150)
+    e_sw_off_from_e_sw_off_150 = sim_tools.origin_checker(e_sw_off_from_e_sw_off_150)
+    ic_from_e_rr_125 = sim_tools.origin_checker(ic_from_e_rr_125)
+    e_rr_from_e_rr_125 = sim_tools.origin_checker(e_rr_from_e_rr_125)
+    ic_from_e_rr_150 = sim_tools.origin_checker(ic_from_e_rr_150)
+    e_rr_from_e_rr_150 = sim_tools.origin_checker(e_rr_from_e_rr_150)
 
     initflag = True
     tj_igbt = 0
@@ -169,10 +182,6 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
         initflag = False
         tj_igbt_check.append(tj_igbt)
 
-    f = open('hello.txt', 'w')
-    f.write(p_igbt_cond)
-    f.write(e_sw_on)
-    f.close()
 
     p_igbt_cond_total = np.sum(p_igbt_cond)
     e_sw_on_total = np.sum(e_sw_on)
