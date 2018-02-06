@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="5bc18e22-9741-4f8a-9eb2-3a9b373fa9a4" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/sim_withfile.py" afterPath="$PROJECT_DIR$/sim_withfile.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -582,7 +581,14 @@
       <option name="project" value="LOCAL" />
       <updated>1517893994803</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="checking if it works">
+      <created>1517935818990</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1517935818990</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -619,7 +625,8 @@
     <MESSAGE value="broke out mark_sim and original_sim to their own definitions, then made 1 sim file, to run it all.&#10;&#10;also, broke out cleanup defs into their own file.&#10;&#10;from here probably need to figure out tjmax, then start working on a comparison between the two programs" />
     <MESSAGE value="added tjmax, cleaned up some stuff" />
     <MESSAGE value="added file ability, need to add more functions" />
-    <option name="LAST_COMMIT_MESSAGE" value="added file ability, need to add more functions" />
+    <MESSAGE value="checking if it works" />
+    <option name="LAST_COMMIT_MESSAGE" value="checking if it works" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
