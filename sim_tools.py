@@ -5,76 +5,125 @@ import pandas as pd
 import csv
 
 
+def output_file_writer(output):
+    row_list = [
+        'input_bus_voltage', 'input_ic_arms', 'power_factor', 'mod_depth', 'freq_carrier', 'freq_output', 'input_tc',
+        'input_rg_on', 'input_rg_off', 'tj_test', 'P_total_IGBT', 'P_cond_IGBT', 'E_sw_IGBT', 'E_sw_on_IGBT',
+        'E_sw_off_IGBT',
+        'delta_Tj_Ave_IGBT', 'Tj_Ave_IGBT', 'delta_Tj_Max_IGBT', 'Tj_max_IGBT', 'Tj_max_IGBT', 'delta_Tc_Ave',
+        'P_total_FWD', 'P_cond_FWD', 'E_rr_FWD', 'delta_Tj_Ave_FWD', 'Tj_Ave_FWD', 'delta_Tj_Max_FWD', 'Tj_Max_FWD',
+        'P_arm']
+    print(output)
+    df2 = pd.DataFrame(output, index=[0])
+    df2 = pd.concat([df2, df2])
+    print(df2)
+
+    df2.to_csv('output.csv')
+
+
+def input_file_reader():
+    input_file = 'input_file.csv'
+
+    row_list = [["tj_test",
+                 "input_bus_voltage",
+                 "input_ic_arms",
+                 "power_factor",
+                 "mod_depth",
+                 "freq_carrier",
+                 "freq_output",
+                 "input_tc",
+                 "input_rg_on",
+                 "input_rg_off"]]
+
+    if not os.path.exists(input_file):
+        with open(input_file, 'w+') as file:
+            writer = csv.writer(file)
+            writer.writerows(row_list)
+
+    row_list = row_list[0]
+    value_dict = {}
+    for x in range(len(row_list)):
+        value_dict[row_list[x]] = pull_data_from_column(input_file, row_list[x])
+    for x in range(len(row_list)):
+        if len(value_dict[row_list[x]]) == 1:
+            value_dict[row_list[x]] = value_dict[row_list[x]][0]
+    return value_dict
+
+
 def module_file_reader():
     module_file = 'module_file.csv'
 
-    row_list = ["module_name",
-                "ic_from_vcesat_25",
-                "vcesat_from_vcesat_25",
-                "ic_from_vcesat_125",
-                "vcesat_from_vcesat_125",
-                "ic_from_vcesat_150",
-                "vcesat_from_vcesat_150",
-                "ie_from_vecsat_25",
-                "vecsat_from_vecsat_25",
-                "ie_from_vecsat_125",
-                "vecsat_from_vecsat_125",
-                "ie_from_vecsat_150",
-                "vecsat_from_vecsat_150",
-                "e_sw_on_from_e_sw_on_125",
-                "ic_from_e_sw_on_125",
-                "e_sw_on_from_e_sw_on_150",
-                "ic_from_e_sw_on_150",
-                "e_sw_off_from_e_sw_off_125",
-                "ic_from_e_sw_off_125",
-                "e_sw_off_from_e_sw_off_150",
-                "ic_from_e_sw_off_150",
-                "e_rr_from_e_rr_125",
-                "ic_from_e_rr_125",
-                "e_rr_from_e_rr_150",
-                "ic_from_e_rr_150",
-                "e_on_from_e_on_125",
-                "e_rg_from_e_on_125",
-                "e_on_from_e_on_150",
-                "e_rg_from_e_on_150",
-                "e_off_from_e_off_125",
-                "e_rg_from_e_off_125",
-                "e_off_from_e_off_150",
-                "e_rg_from_e_off_150",
-                "e_rr_from_e_rg_125",
-                "e_rg_from_e_rg_125",
-                "e_rr_from_e_rg_150",
-                "e_rg_from_e_rg_150",
-                "igbt_r1_per_r0_value",
-                "igbt_r2_per_j0_value",
-                "igbt_r2_per_j0_value",
-                "igbt_r4_per_r1_value",
-                "igbt_t1_per_j1_value",
-                "igbt_t2_per_t1_value",
-                "igbt_t3_value",
-                "igbt_t4_value",
-                "fwd_r1a_per_rd0_value",
-                "fwd_r2a_per_jd0_value",
-                "fwd_r3a_per_td0_value",
-                "fwd_r4a_per_rd1_value",
-                "fwd_t1a_per_jd1_value",
-                "fwd_t2a_per_td1_value",
-                "fwd_t3_value",
-                "fwd_t4_value",
-                "rth_tr_value",
-                "rth_di_value",
-                "rth_thermal_contact",
-                "vcc_value"
-                ]
+    row_list = [["module_name",
+                 "ic_from_vcesat_25",
+                 "vcesat_from_vcesat_25",
+                 "ic_from_vcesat_125",
+                 "vcesat_from_vcesat_125",
+                 "ic_from_vcesat_150",
+                 "vcesat_from_vcesat_150",
+                 "ie_from_vecsat_25",
+                 "vecsat_from_vecsat_25",
+                 "ie_from_vecsat_125",
+                 "vecsat_from_vecsat_125",
+                 "ie_from_vecsat_150",
+                 "vecsat_from_vecsat_150",
+                 "ic_from_e_sw_on_125",
+                 "e_sw_on_from_e_sw_on_125",
+                 "ic_from_e_sw_on_150",
+                 "e_sw_on_from_e_sw_on_150",
+                 "ic_from_e_sw_off_125",
+                 "e_sw_off_from_e_sw_off_125",
+                 "ic_from_e_sw_off_150",
+                 "e_sw_off_from_e_sw_off_150",
+                 "ic_from_e_rr_125",
+                 "e_rr_from_e_rr_125",
+                 "ic_from_e_rr_150",
+                 "e_rr_from_e_rr_150",
+                 "e_on_from_e_on_125",
+                 "e_rg_from_e_on_125",
+                 "e_on_from_e_on_150",
+                 "e_rg_from_e_on_150",
+                 "e_off_from_e_off_125",
+                 "e_rg_from_e_off_125",
+                 "e_off_from_e_off_150",
+                 "e_rg_from_e_off_150",
+                 "e_rr_from_e_rg_125",
+                 "e_rg_from_e_rg_125",
+                 "e_rr_from_e_rg_150",
+                 "e_rg_from_e_rg_150",
+                 "igbt_r1_per_r0_value",
+                 "igbt_r2_per_j0_value",
+                 "igbt_r3_per_t0_value",
+                 "igbt_r4_per_r1_value",
+                 "igbt_t1_per_j1_value",
+                 "igbt_t2_per_t1_value",
+                 "igbt_t3_value",
+                 "igbt_t4_value",
+                 "fwd_r1a_per_rd0_value",
+                 "fwd_r2a_per_jd0_value",
+                 "fwd_r3a_per_td0_value",
+                 "fwd_r4a_per_rd1_value",
+                 "fwd_t1a_per_jd1_value",
+                 "fwd_t2a_per_td1_value",
+                 "fwd_t3_value",
+                 "fwd_t4_value",
+                 "rth_tr_value",
+                 "rth_di_value",
+                 "rth_thermal_contact",
+                 "vcc_value"
+                 ]]
 
     if not os.path.exists(module_file):
         with open(module_file, 'w+') as file:
             writer = csv.writer(file)
             writer.writerows(row_list)
 
+    row_list = row_list[0]
     value_dict = {}
     for x in range(len(row_list)):
         value_dict[row_list[x]] = pull_data_from_column(module_file, row_list[x])
+    for x in range(np.size(row_list)):
+        if np.size(value_dict[row_list[x]]) == 1:
+            value_dict[row_list[x]] = value_dict[row_list[x]][0]
     return value_dict
 
 
@@ -83,6 +132,7 @@ def pull_data_from_column(module_file, column_string):
     x = df[column_string].as_matrix()
     x = x[~np.isnan(x)]
     return x
+
 
 def array_cleaner(independent_var, dependent_var, start, stop,
                   length):  # could try some sort of log system here but still thinking
@@ -157,6 +207,60 @@ def esw_solver(ic125, vce125, ic150, vce150, tj_in, ic_in, max):
     else:
         esw = 0
     return esw
+
+
+def esw_rg_checker(e_sw_rg, e_rg_rg, e_sw_ic, ic_e_sw, threshold):
+    if e_sw_rg[0] > threshold:
+        for x in range(len(e_sw_rg)):
+            e_sw_rg[x] = esw_rg_fixer(e_sw_ic, ic_e_sw, e_rg_rg, ic_e_sw[x])
+    return e_sw_rg
+
+
+def strictly_increasing(L):
+    return all(x < y for x, y in zip(L, L[1:]))
+
+
+def array_flipper(array1, array2):
+    array1 = np.flipud(array1)
+    array2 = np.flipud(array2)
+    return [array1, array2]
+
+
+def file_value_checker(file_values):
+    threshold = 5
+
+    if not strictly_increasing(file_values['ic_from_e_sw_on_150']):
+        file_values['ic_from_e_sw_on_150'], file_values['e_sw_on_from_e_sw_on_150'] = array_flipper(
+            file_values['ic_from_e_sw_on_150'], file_values['e_sw_on_from_e_sw_on_150'])
+
+    file_values['e_on_from_e_on_125'] = esw_rg_checker(file_values['e_on_from_e_on_125'],
+                                                       file_values['e_rg_from_e_on_125'],
+                                                       file_values['e_sw_on_from_e_sw_on_125'],
+                                                       file_values['ic_from_e_sw_on_125'], threshold)
+
+    file_values['e_on_from_e_on_150'] = esw_rg_checker(file_values['e_on_from_e_on_150'],
+                                                       file_values['e_rg_from_e_on_150'],
+                                                       file_values['e_sw_on_from_e_sw_on_150'],
+                                                       file_values['ic_from_e_sw_on_150'], threshold)
+
+    # if file_values['e_on_from_e_on_150'][0] > threshold:
+    #     for x in range(len(file_values['e_on_from_e_on_150'])):
+    #         file_values['e_on_from_e_on_150'][x] = esw_rg_fixer(file_values['e_sw_on_from_e_sw_on_150'],
+    #                                                             file_values['ic_from_e_sw_on_150'],
+    #                                                             file_values['e_rg_from_e_on_150'],
+    #                                                             file_values['ic_from_e_sw_on_150'][x])
+    # if file_values['e_off_from_e_off_125'][0] > threshold:
+    #     for x in range(len(file_values['e_off_from_e_off_125'])):
+    #         file_values['e_off_from_e_off_125'][x] = esw_rg_fixer(file_values['e_sw_off_from_e_sw_off_125'],
+    #                                                               file_values['ic_from_e_sw_off_125'],
+    #                                                               file_values['e_rg_from_e_off_125'],
+    #                                                               file_values['ic_from_e_sw_off_125'][x])
+    # if file_values['e_off_from_e_off_150'][0] > threshold:
+    #     for x in range(len(file_values['e_off_from_e_off_150'])):
+    #         file_values['e_off_from_e_off_150'][x] = esw_rg_fixer(file_values['e_sw_off_from_e_sw_off_150'],
+    #                                                               file_values['ic_from_e_sw_off_150'],
+    #                                                               file_values['e_rg_from_e_off_150'],
+    #                                                               file_values['ic_from_e_sw_off_150'][x])
 
 
 def esw_rg_fixer(esw_ic_esw, ic_ic_esw, esw_rg_esw, ic):

@@ -6,7 +6,7 @@ def get_igbt_rth_from_time(time, transient_thermal_values):
             1.0 - math.exp(-1.0 * time / transient_thermal_values['igbt_t1_per_j1_value']))
     num2 = transient_thermal_values['igbt_r2_per_j0_value'] * (
             1.0 - math.exp(-1.0 * time / transient_thermal_values['igbt_t2_per_t1_value']))
-    num3 = transient_thermal_values['igbt_r2_per_j0_value'] * (
+    num3 = transient_thermal_values['igbt_r3_per_t0_value'] * (
             1.0 - math.exp(-1.0 * time / transient_thermal_values['igbt_t3_value']))
     num4 = transient_thermal_values['igbt_r4_per_r1_value'] * (
             1.0 - math.exp(-1.0 * time / transient_thermal_values['igbt_t4_value']))

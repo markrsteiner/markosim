@@ -5,36 +5,55 @@ import tcmax
 import time
 
 
-def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
-                         ie_from_vecsat_25, vecsat_from_vecsat_25,
-                         ic_from_vcesat_125, vcesat_from_vcesat_125,
-                         ic_from_vcesat_150, vcesat_from_vcesat_150,
-                         ie_from_vecsat_125, vecsat_from_vecsat_125,
-                         ie_from_vecsat_150, vecsat_from_vecsat_150,
-                         ic_from_e_sw_on_125, e_sw_on_from_e_sw_on_125,
-                         ic_from_e_sw_on_150, e_sw_on_from_e_sw_on_150,
-                         ic_from_e_sw_off_125, e_sw_off_from_e_sw_off_125,
-                         ic_from_e_sw_off_150, e_sw_off_from_e_sw_off_150,
-                         ic_from_e_rr_125, e_rr_from_e_rr_125,
-                         ic_from_e_rr_150, e_rr_from_e_rr_150,
-                         e_rg_from_e_on_125, e_on_from_e_on_125,
-                         e_rg_from_e_on_150, e_on_from_e_on_150,
-                         e_rg_from_e_off_125, e_off_from_e_off_125,
-                         e_rg_from_e_off_150, e_off_from_e_off_150,
-                         e_rg_from_e_rg_125, e_rr_from_e_rg_125,
-                         e_rg_from_e_rg_150, e_rr_from_e_rg_150,
-                         tj_test,
-                         input_bus_voltage,
-                         input_ic_arms,
-                         power_factor,
-                         mod_depth,
-                         freq_carrier,
-                         freq_output,
-                         input_tc,
-                         input_rg_on,
-                         input_rg_off,
-                         vcc_value,
-                         transient_thermal_values):
+def mark_sim_output_calc(file_values, input_file_values):
+    tj_test = float(input_file_values['tj_test'])
+    input_bus_voltage = float(input_file_values['input_bus_voltage'])
+    input_ic_arms = float(input_file_values['input_ic_arms'])
+    power_factor = float(input_file_values['power_factor'])
+    mod_depth = float(input_file_values['mod_depth'])
+    freq_carrier = float(input_file_values['freq_carrier'])
+    freq_output = float(input_file_values['freq_output'])
+    input_tc = float(input_file_values['input_tc'])
+    input_rg_on = float(input_file_values['input_rg_on'])
+    input_rg_off = float(input_file_values['input_rg_off'])
+
+    ic_from_vcesat_25 = file_values['ic_from_vcesat_25']
+    vcesat_from_vcesat_25 = file_values['vcesat_from_vcesat_25']
+    ie_from_vecsat_25 = file_values['ie_from_vecsat_25']
+    vecsat_from_vecsat_25 = file_values['vecsat_from_vecsat_25']
+    ic_from_vcesat_125 = file_values['ic_from_vcesat_125']
+    vcesat_from_vcesat_125 = file_values['vcesat_from_vcesat_125']
+    ic_from_vcesat_150 = file_values['ic_from_vcesat_150']
+    vcesat_from_vcesat_150 = file_values['vcesat_from_vcesat_150']
+    ie_from_vecsat_125 = file_values['ie_from_vecsat_125']
+    vecsat_from_vecsat_125 = file_values['vecsat_from_vecsat_125']
+    ie_from_vecsat_150 = file_values['ie_from_vecsat_150']
+    vecsat_from_vecsat_150 = file_values['vecsat_from_vecsat_150']
+    ic_from_e_sw_on_125 = file_values['ic_from_e_sw_on_125']
+    e_sw_on_from_e_sw_on_125 = file_values['e_sw_on_from_e_sw_on_125']
+    ic_from_e_sw_on_150 = file_values['ic_from_e_sw_on_150']
+    e_sw_on_from_e_sw_on_150 = file_values['e_sw_on_from_e_sw_on_150']
+    ic_from_e_sw_off_125 = file_values['ic_from_e_sw_off_125']
+    e_sw_off_from_e_sw_off_125 = file_values['e_sw_off_from_e_sw_off_125']
+    ic_from_e_sw_off_150 = file_values['ic_from_e_sw_off_150']
+    e_sw_off_from_e_sw_off_150 = file_values['e_sw_off_from_e_sw_off_150']
+    ic_from_e_rr_125 = file_values['ic_from_e_rr_125']
+    e_rr_from_e_rr_125 = file_values['e_rr_from_e_rr_125']
+    ic_from_e_rr_150 = file_values['ic_from_e_rr_150']
+    e_rr_from_e_rr_150 = file_values['e_rr_from_e_rr_150']
+    e_rg_from_e_on_125 = file_values['e_rg_from_e_on_125']
+    e_on_from_e_on_125 = file_values['e_on_from_e_on_125']
+    e_rg_from_e_on_150 = file_values['e_rg_from_e_on_150']
+    e_on_from_e_on_150 = file_values['e_on_from_e_on_150']
+    e_rg_from_e_off_125 = file_values['e_rg_from_e_off_125']
+    e_off_from_e_off_125 = file_values['e_off_from_e_off_125']
+    e_rg_from_e_off_150 = file_values['e_rg_from_e_off_150']
+    e_off_from_e_off_150 = file_values['e_off_from_e_off_150']
+    e_rg_from_e_rg_125 = file_values['e_rg_from_e_rg_125']
+    e_rr_from_e_rg_125 = file_values['e_rr_from_e_rg_125']
+    e_rg_from_e_rg_150 = file_values['e_rg_from_e_rg_150']
+    e_rr_from_e_rg_150 = file_values['e_rr_from_e_rg_150']
+
     tj_try_igbt = tj_test
     tj_try_fwd = tj_test
 
@@ -78,8 +97,8 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
         time_division = 1.0 / freq_output / 360.0 * 1000.0 * 1000.0 * step
         switches_per_cycle_per_degree = freq_carrier / freq_output / 360.0 * 1000 * step
         if initflag:
-            tj_try_igbt = 125
-            tj_try_fwd = 125
+            tj_try_igbt = tj_test
+            tj_try_fwd = tj_test
         else:
             tj_try_igbt = tj_igbt
             tj_try_fwd = tj_fwd
@@ -136,7 +155,7 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
             if 1.0 > output_voltage[0] / input_bus_voltage > 0.0:
                 fwd_e_rr_fco_ratio = switches_per_cycle_per_degree * ErrFromIc
 
-            vcc_ratio = input_bus_voltage / vcc_value
+            vcc_ratio = input_bus_voltage / file_values['vcc_value']
 
             e_sw_on_from_rg_e_sw_on = sim_tools.esw_solver(e_rg_from_e_on_125, e_on_from_e_on_125, e_rg_from_e_on_150,
                                                     e_on_from_e_on_150,
@@ -173,9 +192,9 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
 
             degree_count += step
 
-        delta_tj__igbt = np.sum(p_igbt) * transient_thermal_values['rth_tr_value']
-        delta_tj__fwd = np.sum(p_fwd) * transient_thermal_values['rth_di_value']
-        delta_tc = np.sum(p_arm) * transient_thermal_values['rth_thermal_contact']
+        delta_tj__igbt = np.sum(p_igbt) * file_values['rth_tr_value']
+        delta_tj__fwd = np.sum(p_fwd) * file_values['rth_di_value']
+        delta_tc = np.sum(p_arm) * file_values['rth_thermal_contact']
         tj_igbt = delta_tj__igbt + delta_tc + input_tc
         tj_fwd = delta_tj__fwd + delta_tc + input_tc
 
@@ -198,7 +217,7 @@ def mark_sim_output_calc(ic_from_vcesat_25, vcesat_from_vcesat_25,
 
     tc_max_results = tcmax.tj_max_calculation(p_igbt_total, p_fwd_total, p_igbt_tcmax, p_fwd_tcmax, input_tc,
                                               freq_output,
-                                              transient_thermal_values)
+                                              file_values)
 
     tj_max_igbt = tc_max_results['tj_max_igbt']
     delta_tj_max_igbt = tj_max_igbt - delta_tc - input_tc
