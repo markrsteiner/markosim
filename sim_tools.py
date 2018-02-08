@@ -3,22 +3,110 @@ import scipy.interpolate as sp
 import os.path
 import pandas as pd
 import csv
+import original_sim
+import mark_sim
+import time
 
 
-def output_file_writer(output):
-    row_list = [
-        'input_bus_voltage', 'input_ic_arms', 'power_factor', 'mod_depth', 'freq_carrier', 'freq_output', 'input_tc',
-        'input_rg_on', 'input_rg_off', 'tj_test', 'P_total_IGBT', 'P_cond_IGBT', 'E_sw_IGBT', 'E_sw_on_IGBT',
-        'E_sw_off_IGBT',
-        'delta_Tj_Ave_IGBT', 'Tj_Ave_IGBT', 'delta_Tj_Max_IGBT', 'Tj_max_IGBT', 'Tj_max_IGBT', 'delta_Tc_Ave',
-        'P_total_FWD', 'P_cond_FWD', 'E_rr_FWD', 'delta_Tj_Ave_FWD', 'Tj_Ave_FWD', 'delta_Tj_Max_FWD', 'Tj_Max_FWD',
-        'P_arm']
-    print(output)
-    df2 = pd.DataFrame(output, index=[0])
-    df2 = pd.concat([df2, df2])
-    print(df2)
+def input_file_checker(input_file):
+    if len(input_file['input_bus_voltage']) > 1:
+        return True
+    return False
 
-    df2.to_csv('output.csv')
+
+def m_sim_runner(file_values, input_file_values):
+    if len(input_file_values['input_bus_voltage']) > 1:
+        output_file_temp_3 = []
+        input_file_temp_2 = []
+        for x in range(len(input_file_values['input_bus_voltage'])):
+            input_file_values_temp_1 = [y[x] for y in input_file_values.values()]
+            input_file_values_temp_2 = [y for y in input_file_values.keys()]
+            input_file_values_temp = {input_file_values_temp_2[x]: input_file_values_temp_1[x] for x in range(len(input_file_values_temp_1))}
+            input_file_temp_2.append(input_file_values_temp_1)
+
+            output_file = original_sim.m_sim_output_calc(file_values, input_file_values_temp)
+
+            output_file_temp_1 = [y for y in output_file.values()]
+            output_file_temp_3.append(output_file_temp_1)
+            output_file_temp_2 = [y for y in output_file.keys()]
+        input_file_temp_2 = np.transpose(input_file_temp_2)
+        output_file_temp_3 = np.transpose(output_file_temp_3)
+        print(output_file_temp_3)
+        output_file_dict = {output_file_temp_2[x]: output_file_temp_3[x] for x in range(len(output_file_temp_2))}
+        input_file_dict = {input_file_values_temp_2[x]: input_file_temp_2[x] for x in range(len(input_file_values_temp_2))}
+        print(output_file_dict)
+        print(input_file_dict)
+        full_file_dict = {**input_file_dict, **output_file_dict}
+        print(full_file_dict)
+    else:
+        output_file = original_sim.m_sim_output_calc(file_values, input_file_values)
+        full_file_dict = {**input_file_values, **output_file}
+    return full_file_dict
+
+
+def mark_sim_runner(file_values, input_file_values):
+    if len(input_file_values['input_bus_voltage']) > 1:
+        output_file_temp_3 = []
+        input_file_temp_2 = []
+        for x in range(len(input_file_values['input_bus_voltage'])):
+            input_file_values_temp_1 = [y[x] for y in input_file_values.values()]
+            input_file_values_temp_2 = [y for y in input_file_values.keys()]
+            input_file_values_temp = {input_file_values_temp_2[x]: input_file_values_temp_1[x] for x in range(len(input_file_values_temp_1))}
+            input_file_temp_2.append(input_file_values_temp_1)
+
+            output_file = mark_sim.mark_sim_output_calc(file_values, input_file_values_temp)
+
+            output_file_temp_1 = [y for y in output_file.values()]
+            output_file_temp_3.append(output_file_temp_1)
+            output_file_temp_2 = [y for y in output_file.keys()]
+        input_file_temp_2 = np.transpose(input_file_temp_2)
+        output_file_temp_3 = np.transpose(output_file_temp_3)
+        print(output_file_temp_3)
+        output_file_dict = {output_file_temp_2[x]: output_file_temp_3[x] for x in range(len(output_file_temp_2))}
+        input_file_dict = {input_file_values_temp_2[x]: input_file_temp_2[x] for x in range(len(input_file_values_temp_2))}
+        print(output_file_dict)
+        print(input_file_dict)
+        full_file_dict = {**input_file_dict, **output_file_dict}
+        print(full_file_dict)
+    else:
+        output_file = original_sim.m_sim_output_calc(file_values, input_file_values)
+        full_file_dict = {**input_file_values, **output_file}
+    return full_file_dict
+
+
+def output_file_writer(output_file):
+    columns = ['input_bus_voltage',
+               'input_ic_arms',
+               'power_factor',
+               'mod_depth',
+               'freq_carrier',
+               'freq_output',
+               'input_tc',
+               'input_rg_on',
+               'input_rg_off',
+               'tj_test',
+               'P_arm',
+               'P_total_IGBT',
+               'P_cond_IGBT',
+               'E_sw_IGBT',
+               'E_sw_on_IGBT',
+               'E_sw_off_IGBT',
+               'Tj_Ave_IGBT',
+               'delta_Tj_Ave_IGBT',
+               'Tj_max_IGBT',
+               'delta_Tj_Max_IGBT',
+               'delta_Tc_Ave',
+               'P_total_FWD',
+               'P_cond_FWD',
+               'E_rr_FWD',
+               'Tj_Ave_FWD',
+               'delta_Tj_Ave_FWD',
+               'Tj_Max_FWD',
+               'delta_Tj_Max_FWD']
+    module_file = 'output' + time.strftime("%d_%b_%y_%H_%M_%S") + '.csv'
+    print(type(output_file))
+    df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in output_file.items()]), columns=columns)
+    df.to_csv(module_file)
 
 
 def input_file_reader():
@@ -109,22 +197,91 @@ def module_file_reader():
                  "rth_tr_value",
                  "rth_di_value",
                  "rth_thermal_contact",
-                 "vcc_value"
+                 "vcc_value",
+                 "current_value"
                  ]]
 
-    if not os.path.exists(module_file):
+    if not os.path.exists(module_file) and not os.path.exists('module_file_revised.csv'):
         with open(module_file, 'w+') as file:
             writer = csv.writer(file)
             writer.writerows(row_list)
 
     row_list = row_list[0]
     value_dict = {}
+
     for x in range(len(row_list)):
-        value_dict[row_list[x]] = pull_data_from_column(module_file, row_list[x])
+        value_dict[row_list[x]] = pull_data_from_column('module_file_revised.csv', row_list[x])
     for x in range(np.size(row_list)):
         if np.size(value_dict[row_list[x]]) == 1:
             value_dict[row_list[x]] = value_dict[row_list[x]][0]
     return value_dict
+
+
+def module_file_updated_writer(file_values):
+    column_list = ["module_name",
+                   "ic_from_vcesat_25",
+                   "vcesat_from_vcesat_25",
+                   "ic_from_vcesat_125",
+                   "vcesat_from_vcesat_125",
+                   "ic_from_vcesat_150",
+                   "vcesat_from_vcesat_150",
+                   "ie_from_vecsat_25",
+                   "vecsat_from_vecsat_25",
+                   "ie_from_vecsat_125",
+                   "vecsat_from_vecsat_125",
+                   "ie_from_vecsat_150",
+                   "vecsat_from_vecsat_150",
+                   "ic_from_e_sw_on_125",
+                   "e_sw_on_from_e_sw_on_125",
+                   "ic_from_e_sw_on_150",
+                   "e_sw_on_from_e_sw_on_150",
+                   "ic_from_e_sw_off_125",
+                   "e_sw_off_from_e_sw_off_125",
+                   "ic_from_e_sw_off_150",
+                   "e_sw_off_from_e_sw_off_150",
+                   "ic_from_e_rr_125",
+                   "e_rr_from_e_rr_125",
+                   "ic_from_e_rr_150",
+                   "e_rr_from_e_rr_150",
+                   "e_on_from_e_on_125",
+                   "e_rg_from_e_on_125",
+                   "e_on_from_e_on_150",
+                   "e_rg_from_e_on_150",
+                   "e_off_from_e_off_125",
+                   "e_rg_from_e_off_125",
+                   "e_off_from_e_off_150",
+                   "e_rg_from_e_off_150",
+                   "e_rr_from_e_rg_125",
+                   "e_rg_from_e_rg_125",
+                   "e_rr_from_e_rg_150",
+                   "e_rg_from_e_rg_150",
+                   "igbt_r1_per_r0_value",
+                   "igbt_r2_per_j0_value",
+                   "igbt_r3_per_t0_value",
+                   "igbt_r4_per_r1_value",
+                   "igbt_t1_per_j1_value",
+                   "igbt_t2_per_t1_value",
+                   "igbt_t3_value",
+                   "igbt_t4_value",
+                   "fwd_r1a_per_rd0_value",
+                   "fwd_r2a_per_jd0_value",
+                   "fwd_r3a_per_td0_value",
+                   "fwd_r4a_per_rd1_value",
+                   "fwd_t1a_per_jd1_value",
+                   "fwd_t2a_per_td1_value",
+                   "fwd_t3_value",
+                   "fwd_t4_value",
+                   "rth_tr_value",
+                   "rth_di_value",
+                   "rth_thermal_contact",
+                   "vcc_value",
+                   "current_value"
+                   ]
+
+    module_file = 'module_file_revised.csv'
+    print(type(file_values))
+    df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in file_values.items()]), columns=column_list)
+    df.to_csv(module_file)
 
 
 def pull_data_from_column(module_file, column_string):
@@ -209,65 +366,69 @@ def esw_solver(ic125, vce125, ic150, vce150, tj_in, ic_in, max):
     return esw
 
 
-def esw_rg_checker(e_sw_rg, e_rg_rg, e_sw_ic, ic_e_sw, threshold):
-    if e_sw_rg[0] > threshold:
-        for x in range(len(e_sw_rg)):
-            e_sw_rg[x] = esw_rg_fixer(e_sw_ic, ic_e_sw, e_rg_rg, ic_e_sw[x])
-    return e_sw_rg
-
-
 def strictly_increasing(L):
     return all(x < y for x, y in zip(L, L[1:]))
 
 
-def array_flipper(array1, array2):
-    array1 = np.flipud(array1)
-    array2 = np.flipud(array2)
-    return [array1, array2]
+def array_flipper(dependent_array, independent_array):
+    if not strictly_increasing(dependent_array):
+        dependent_array = np.flipud(dependent_array)
+        independent_array = np.flipud(independent_array)
+    return [dependent_array, independent_array]
 
 
-def file_value_checker(file_values):
-    threshold = 5
-
-    if not strictly_increasing(file_values['ic_from_e_sw_on_150']):
-        file_values['ic_from_e_sw_on_150'], file_values['e_sw_on_from_e_sw_on_150'] = array_flipper(
-            file_values['ic_from_e_sw_on_150'], file_values['e_sw_on_from_e_sw_on_150'])
-
-    file_values['e_on_from_e_on_125'] = esw_rg_checker(file_values['e_on_from_e_on_125'],
-                                                       file_values['e_rg_from_e_on_125'],
-                                                       file_values['e_sw_on_from_e_sw_on_125'],
-                                                       file_values['ic_from_e_sw_on_125'], threshold)
-
-    file_values['e_on_from_e_on_150'] = esw_rg_checker(file_values['e_on_from_e_on_150'],
-                                                       file_values['e_rg_from_e_on_150'],
-                                                       file_values['e_sw_on_from_e_sw_on_150'],
-                                                       file_values['ic_from_e_sw_on_150'], threshold)
-
-    # if file_values['e_on_from_e_on_150'][0] > threshold:
-    #     for x in range(len(file_values['e_on_from_e_on_150'])):
-    #         file_values['e_on_from_e_on_150'][x] = esw_rg_fixer(file_values['e_sw_on_from_e_sw_on_150'],
-    #                                                             file_values['ic_from_e_sw_on_150'],
-    #                                                             file_values['e_rg_from_e_on_150'],
-    #                                                             file_values['ic_from_e_sw_on_150'][x])
-    # if file_values['e_off_from_e_off_125'][0] > threshold:
-    #     for x in range(len(file_values['e_off_from_e_off_125'])):
-    #         file_values['e_off_from_e_off_125'][x] = esw_rg_fixer(file_values['e_sw_off_from_e_sw_off_125'],
-    #                                                               file_values['ic_from_e_sw_off_125'],
-    #                                                               file_values['e_rg_from_e_off_125'],
-    #                                                               file_values['ic_from_e_sw_off_125'][x])
-    # if file_values['e_off_from_e_off_150'][0] > threshold:
-    #     for x in range(len(file_values['e_off_from_e_off_150'])):
-    #         file_values['e_off_from_e_off_150'][x] = esw_rg_fixer(file_values['e_sw_off_from_e_sw_off_150'],
-    #                                                               file_values['ic_from_e_sw_off_150'],
-    #                                                               file_values['e_rg_from_e_off_150'],
-    #                                                               file_values['ic_from_e_sw_off_150'][x])
+def esw_rg_checker(e_sw_rg, e_sw_ic, ic_e_sw, current_value, threshold):
+    if e_sw_rg[0] > threshold:
+        e_sw_rg = esw_rg_fixer(e_sw_ic, ic_e_sw, e_sw_rg, current_value)
+    return e_sw_rg
 
 
 def esw_rg_fixer(esw_ic_esw, ic_ic_esw, esw_rg_esw, ic):
     baseline = sp.UnivariateSpline(ic_ic_esw, esw_ic_esw)
+    baseline_energy = float(baseline(ic))
     for x in range(0, len(esw_rg_esw)):
-        esw_rg_esw[x] = esw_rg_esw[x] / float(baseline(ic))
+        esw_rg_esw[x] = esw_rg_esw[x] / float(baseline_energy)
     return esw_rg_esw
+
+
+def file_value_checker(file_values):
+    threshold = 10
+    current_value = file_values["current_value"]
+
+    file_values["ic_from_vcesat_25"], file_values["vcesat_from_vcesat_25"] = array_flipper(file_values["ic_from_vcesat_25"], file_values["vcesat_from_vcesat_25"])
+    file_values["ic_from_vcesat_125"], file_values["vcesat_from_vcesat_125"] = array_flipper(file_values["ic_from_vcesat_125"], file_values["vcesat_from_vcesat_125"])
+    file_values["ic_from_vcesat_150"], file_values["vcesat_from_vcesat_150"] = array_flipper(file_values["ic_from_vcesat_150"], file_values["vcesat_from_vcesat_150"])
+    file_values["ie_from_vecsat_25"], file_values["vecsat_from_vecsat_25"] = array_flipper(file_values["ie_from_vecsat_25"], file_values["vecsat_from_vecsat_25"])
+    file_values["ie_from_vecsat_125"], file_values["vecsat_from_vecsat_125"] = array_flipper(file_values["ie_from_vecsat_125"], file_values["vecsat_from_vecsat_125"])
+    file_values["ie_from_vecsat_150"], file_values["vecsat_from_vecsat_150"] = array_flipper(file_values["ie_from_vecsat_150"], file_values["vecsat_from_vecsat_150"])
+    file_values["ic_from_e_sw_on_125"], file_values["e_sw_on_from_e_sw_on_125"] = array_flipper(file_values["ic_from_e_sw_on_125"], file_values["e_sw_on_from_e_sw_on_125"])
+    file_values["ic_from_e_sw_on_150"], file_values["e_sw_on_from_e_sw_on_150"] = array_flipper(file_values["ic_from_e_sw_on_150"], file_values["e_sw_on_from_e_sw_on_150"])
+    file_values["ic_from_e_sw_off_125"], file_values["e_sw_off_from_e_sw_off_125"] = array_flipper(file_values["ic_from_e_sw_off_125"], file_values["e_sw_off_from_e_sw_off_125"])
+    file_values["ic_from_e_sw_off_150"], file_values["e_sw_off_from_e_sw_off_150"] = array_flipper(file_values["ic_from_e_sw_off_150"], file_values["e_sw_off_from_e_sw_off_150"])
+    file_values["ic_from_e_rr_125"], file_values["e_rr_from_e_rr_125"] = array_flipper(file_values["ic_from_e_rr_125"], file_values["e_rr_from_e_rr_125"])
+    file_values["ic_from_e_rr_150"], file_values["e_rr_from_e_rr_150"] = array_flipper(file_values["ic_from_e_rr_150"], file_values["e_rr_from_e_rr_150"])
+    file_values["e_rg_from_e_on_125"], file_values["e_on_from_e_on_125"] = array_flipper(file_values["e_rg_from_e_on_125"], file_values["e_on_from_e_on_125"])
+    file_values["e_rg_from_e_on_150"], file_values["e_on_from_e_on_150"] = array_flipper(file_values["e_rg_from_e_on_150"], file_values["e_on_from_e_on_150"])
+    file_values["e_rg_from_e_off_125"], file_values["e_off_from_e_off_125"] = array_flipper(file_values["e_rg_from_e_off_125"], file_values["e_off_from_e_off_125"])
+    file_values["e_rg_from_e_off_150"], file_values["e_off_from_e_off_150"] = array_flipper(file_values["e_rg_from_e_off_150"], file_values["e_off_from_e_off_150"])
+    file_values["e_rg_from_e_rg_125"], file_values["e_rr_from_e_rg_125"] = array_flipper(file_values["e_rg_from_e_rg_125"], file_values["e_rr_from_e_rg_125"])
+    file_values["e_rg_from_e_rg_150"], file_values["e_rr_from_e_rg_150"] = array_flipper(file_values["e_rg_from_e_rg_150"], file_values["e_rr_from_e_rg_150"])
+
+    file_values['e_on_from_e_on_125'] = esw_rg_checker(file_values['e_on_from_e_on_125'], file_values['e_sw_on_from_e_sw_on_125'], file_values['ic_from_e_sw_on_125'],
+                                                       current_value, threshold)
+    file_values['e_on_from_e_on_150'] = esw_rg_checker(file_values['e_on_from_e_on_150'], file_values['e_sw_on_from_e_sw_on_150'], file_values['ic_from_e_sw_on_150'],
+                                                       current_value, threshold)
+    file_values['e_off_from_e_off_125'] = esw_rg_checker(file_values['e_off_from_e_off_125'], file_values['e_sw_off_from_e_sw_off_125'], file_values['ic_from_e_sw_off_125'],
+                                                         current_value, threshold)
+
+    file_values['e_off_from_e_off_150'] = esw_rg_checker(file_values['e_off_from_e_off_150'], file_values['e_sw_off_from_e_sw_off_150'], file_values['ic_from_e_sw_off_150'],
+                                                         current_value, threshold)
+    file_values['e_rr_from_e_rg_125'] = esw_rg_checker(file_values['e_rr_from_e_rg_125'], file_values['e_rr_from_e_rr_125'], file_values['ic_from_e_rr_125'], current_value,
+                                                       threshold)
+    file_values['e_rr_from_e_rg_150'] = esw_rg_checker(file_values['e_rr_from_e_rg_150'], file_values['e_rr_from_e_rr_150'], file_values['ic_from_e_rr_150'], current_value,
+                                                       threshold)
+
+    return file_values
 
 
 def origin_checker(checkee):
@@ -285,3 +446,8 @@ def doublearray_maker(array_in):
     for i in range(2 * len(array_in)):
         array_out.append(array_in[i % len(array_in)])
     return array_out
+
+
+ball = 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1
+
+print(ball)

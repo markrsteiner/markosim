@@ -1,5 +1,5 @@
 import math
-
+import numpy as np
 
 def get_igbt_rth_from_time(time, transient_thermal_values):
     num1 = transient_thermal_values['igbt_r1_per_r0_value'] * (
@@ -102,8 +102,27 @@ def tj_max_calculation(p_igbt_ave, p_fwd_ave, p_igbt_inst_list, p_fwd_inst_list,
         tj_fwd_list.append(tj_fwd_inst)
         p_fwd_list.append(p_fwd_inst_list[index1])
 
-        tj_max_igbt = max(tj_igbt_list)
-        tj_max_fwd = max(tj_fwd_list)
+    # max calc
+    igbt_ave_temp = np.average(tj_igbt_list)
+    fwd_ave_temp = np.average(tj_fwd_list)
+    num1 = input_tc + p_igbt_ave * transient_thermal_values['rth_tr_value'] - igbt_ave_temp
+    num2 = input_tc + p_fwd_ave * transient_thermal_values['rth_di_value'] - fwd_ave_temp
+
+    for index2 in range(360):
+        tj_igbt_list[index2] = tj_igbt_list[index2] + num1
+        tj_fwd_list[index2] = tj_fwd_list[index2] + num2
+        time_list.append(time_list[359] + time_list[index2])
+        rad_list.append(360 + index2 + 1)
+        tj_igbt_list.append(tj_igbt_list[index2])
+        p_igbt_list.append(p_igbt_list[index2])
+        tj_fwd_list.append(tj_fwd_list[index2])
+        p_fwd_list.append(p_fwd_list[index2])
+
+    tj_max_igbt = max(tj_igbt_list)
+    tj_max_fwd = max(tj_fwd_list)
+
+    # tj_max_igbt = max(tj_igbt_list)
+    # tj_max_fwd = max(tj_fwd_list)
 
     results = {}
 

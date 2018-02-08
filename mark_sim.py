@@ -2,7 +2,6 @@ import numpy as np
 import math
 import sim_tools
 import tcmax
-import time
 
 
 def mark_sim_output_calc(file_values, input_file_values):
