@@ -193,9 +193,9 @@ def mark_sim_output_calc(file_values, input_file_values):
 
         delta_tj__igbt = np.sum(p_igbt) * file_values['rth_tr_value']
         delta_tj__fwd = np.sum(p_fwd) * file_values['rth_di_value']
-        delta_tc = np.sum(p_arm) * file_values['rth_thermal_contact']
-        tj_igbt = delta_tj__igbt + delta_tc + input_tc
-        tj_fwd = delta_tj__fwd + delta_tc + input_tc
+        delta_tc = np.sum(p_arm) * file_values['rth_thermal_contact'] + input_tc
+        tj_igbt = delta_tj__igbt + delta_tc
+        tj_fwd = delta_tj__fwd + delta_tc
 
         initflag = False
         tj_igbt_check.append(tj_igbt)
@@ -219,9 +219,9 @@ def mark_sim_output_calc(file_values, input_file_values):
                                               file_values)
 
     tj_max_igbt = tc_max_results['tj_max_igbt']
-    delta_tj_max_igbt = tj_max_igbt - delta_tc - input_tc
+    delta_tj_max_igbt = tj_max_igbt - delta_tc
     tj_max_fwd = tc_max_results['tj_max_fwd']
-    delta_tj_max_fwd = tj_max_fwd - delta_tc - input_tc
+    delta_tj_max_fwd = tj_max_fwd - delta_tc
 
     results = {}
 
@@ -234,7 +234,7 @@ def mark_sim_output_calc(file_values, input_file_values):
     results['Tj_Ave_IGBT'] = tj_igbt
     results['delta_Tj_Max_IGBT'] = delta_tj_max_igbt
     results['Tj_max_IGBT'] = tj_max_igbt
-    results['delta_Tc_Ave'] = delta_tc
+    results['Tc_Ave'] = delta_tc
     results['P_total_FWD'] = p_fwd_total
     results['P_cond_FWD'] = p_fwd_cond_total
     results['E_rr_FWD'] = e_sw_err_total

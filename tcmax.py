@@ -56,7 +56,7 @@ def create_thermal_resistance_dict(input_fo, transient_thermal_values):
     return results
 
 
-def tj_max_calculation(p_igbt_ave, p_fwd_ave, p_igbt_inst_list, p_fwd_inst_list, input_tc, input_fo,
+def tj_max_calculation(p_igbt_ave, p_fwd_ave, p_igbt_inst_list, p_fwd_inst_list, input_tc, input_fo, tj_ave_igbt, tj_ave_fwd,
                        transient_thermal_values):
     thermo_dict = create_thermal_resistance_dict(input_fo, transient_thermal_values)
     time_value = thermo_dict['time_value']
@@ -105,8 +105,8 @@ def tj_max_calculation(p_igbt_ave, p_fwd_ave, p_igbt_inst_list, p_fwd_inst_list,
     # max calc
     igbt_ave_temp = np.average(tj_igbt_list)
     fwd_ave_temp = np.average(tj_fwd_list)
-    num1 = input_tc + p_igbt_ave * transient_thermal_values['rth_tr_value'] - igbt_ave_temp
-    num2 = input_tc + p_fwd_ave * transient_thermal_values['rth_di_value'] - fwd_ave_temp
+    num1 = tj_ave_igbt - igbt_ave_temp
+    num2 = tj_ave_fwd - fwd_ave_temp
 
     for index2 in range(360):
         tj_igbt_list[index2] = tj_igbt_list[index2] + num1

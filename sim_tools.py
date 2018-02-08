@@ -6,6 +6,7 @@ import csv
 import original_sim
 import mark_sim
 import time
+import math
 
 
 def input_file_checker(input_file):
@@ -26,7 +27,7 @@ def m_sim_runner(file_values, input_file_values):
 
             output_file = original_sim.m_sim_output_calc(file_values, input_file_values_temp)
 
-            output_file_temp_1 = [y for y in output_file.values()]
+            output_file_temp_1 = [math.floor(y * 100) / 100 for y in output_file.values()]
             output_file_temp_3.append(output_file_temp_1)
             output_file_temp_2 = [y for y in output_file.keys()]
         input_file_temp_2 = np.transpose(input_file_temp_2)
@@ -81,31 +82,30 @@ def output_file_writer(output_file):
                'mod_depth',
                'freq_carrier',
                'freq_output',
-               'input_tc',
                'input_rg_on',
                'input_rg_off',
                'tj_test',
-               'P_arm',
+               'input_tc',
                'P_total_IGBT',
-               'P_cond_IGBT',
                'E_sw_IGBT',
+               'P_cond_IGBT',
                'E_sw_on_IGBT',
                'E_sw_off_IGBT',
-               'Tj_Ave_IGBT',
+               'Tc_Ave',
                'delta_Tj_Ave_IGBT',
-               'Tj_max_IGBT',
+               'Tj_Ave_IGBT',
                'delta_Tj_Max_IGBT',
-               'delta_Tc_Ave',
+               'Tj_max_IGBT',
                'P_total_FWD',
-               'P_cond_FWD',
                'E_rr_FWD',
-               'Tj_Ave_FWD',
+               'P_cond_FWD',
                'delta_Tj_Ave_FWD',
-               'Tj_Max_FWD',
-               'delta_Tj_Max_FWD']
+               'Tj_Ave_FWD',
+               'delta_Tj_Max_FWD',
+               'Tj_Max_FWD']
     module_file = 'output' + time.strftime("%d_%b_%y_%H_%M_%S") + '.csv'
     print(type(output_file))
-    df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in output_file.items()]), columns=columns)
+    df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in output_file.items()]), columns=columns).T
     df.to_csv(module_file)
 
 
