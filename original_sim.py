@@ -5,16 +5,21 @@ import tcmax
 
 
 def m_sim_output_calc(file_values, input_file_values):
-    tj_test = float(input_file_values['tj_test'])
-    input_bus_voltage = float(input_file_values['input_bus_voltage'])
-    input_ic_arms = float(input_file_values['input_ic_arms'])
-    power_factor = float(input_file_values['power_factor'])
-    mod_depth = float(input_file_values['mod_depth'])
-    freq_carrier = float(input_file_values['freq_carrier'])
-    freq_output = float(input_file_values['freq_output'])
-    input_tc = float(input_file_values['input_tc'])
-    input_rg_on = float(input_file_values['input_rg_on'])
-    input_rg_off = float(input_file_values['input_rg_off'])
+    for key, val in input_file_values.items():
+        exec(key + '=' + str(val))
+        print(key + '=' + str(val))
+
+    tj_test = float(tj_test)
+    # tj_test = float(input_file_values['tj_test'])
+    # input_bus_voltage = float(input_file_values['input_bus_voltage'])
+    # input_ic_arms = float(input_file_values['input_ic_arms'])
+    # power_factor = float(input_file_values['power_factor'])
+    # mod_depth = float(input_file_values['mod_depth'])
+    # freq_carrier = float(input_file_values['freq_carrier'])
+    # freq_output = float(input_file_values['freq_output'])
+    # input_tc = float(input_file_values['input_tc'])
+    # input_rg_on = float(input_file_values['input_rg_on'])
+    # input_rg_off = float(input_file_values['input_rg_off'])
 
     ic_from_vcesat_125 = file_values['ic_from_vcesat_125']
     vcesat_from_vcesat_125 = file_values['vcesat_from_vcesat_125']

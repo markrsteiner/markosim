@@ -9,6 +9,9 @@ import time
 import math
 
 
+class Mod:
+
+
 def input_file_checker(input_file):
     if len(input_file['input_bus_voltage']) > 1:
         return True
@@ -359,8 +362,8 @@ def esw_solver(ic125, vce125, ic150, vce150, tj_in, ic_in, max):
         vcesat_all = twopeat_array(vcesat125, vcesat150)
         current_all = twopeat_array(output1, output1)
         grid_z0 = sp.griddata((temp_all, current_all), vcesat_all, (grid_tj, ic_in), method="linear")
-        vce_for_temp = sp.UnivariateSpline(grid_tj, grid_z0)
-        esw = vce_for_temp(tj_in)
+        esw = np.interp(tj_in, grid_tj, grid_z0)
+        # esw = vce_for_temp(tj_in)
     else:
         esw = 0
     return esw
@@ -446,8 +449,3 @@ def doublearray_maker(array_in):
     for i in range(2 * len(array_in)):
         array_out.append(array_in[i % len(array_in)])
     return array_out
-
-
-ball = 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1
-
-print(ball)

@@ -214,9 +214,7 @@ def mark_sim_output_calc(file_values, input_file_values):
     p_igbt_tcmax = sim_tools.doublearray_maker(p_total_igbt)
     p_fwd_tcmax = sim_tools.doublearray_maker(p_total_fwd)
 
-    tc_max_results = tcmax.tj_max_calculation(p_igbt_total, p_fwd_total, p_igbt_tcmax, p_fwd_tcmax, input_tc,
-                                              freq_output,
-                                              file_values)
+    tc_max_results = tcmax.tj_max_calculation(p_igbt_total, p_fwd_total, p_igbt_tcmax, p_fwd_tcmax, input_tc, freq_output, tj_igbt, tj_fwd, file_values)
 
     tj_max_igbt = tc_max_results['tj_max_igbt']
     delta_tj_max_igbt = tj_max_igbt - delta_tc
@@ -243,4 +241,6 @@ def mark_sim_output_calc(file_values, input_file_values):
     results['delta_Tj_Max_FWD'] = delta_tj_max_fwd
     results['Tj_Max_FWD'] = tj_max_fwd
     results['P_arm'] = p_arm_total
+
+    print(results)
     return results
