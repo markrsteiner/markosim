@@ -9,7 +9,9 @@ import time
 import math
 
 
-class Mod:
+class InputFile(object):
+    def __init__(self, **kw):
+        self.__dict__.update(kw)
 
 
 def input_file_checker(input_file):

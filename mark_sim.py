@@ -5,7 +5,10 @@ import tcmax
 
 
 def mark_sim_output_calc(file_values, input_file_values):
-    tj_test = float(input_file_values['tj_test'])
+    ins = sim_tools.InputFile
+    refs = sim_tools.InputFile
+
+    # ins.tj_test = float(input_file_values['ins.tj_test'])
     input_bus_voltage = float(input_file_values['input_bus_voltage'])
     input_ic_arms = float(input_file_values['input_ic_arms'])
     power_factor = float(input_file_values['power_factor'])
@@ -53,8 +56,8 @@ def mark_sim_output_calc(file_values, input_file_values):
     e_rg_from_e_rg_150 = file_values['e_rg_from_e_rg_150']
     e_rr_from_e_rg_150 = file_values['e_rr_from_e_rg_150']
 
-    tj_try_igbt = tj_test
-    tj_try_fwd = tj_test
+    tj_try_igbt = ins.tj_test
+    tj_try_fwd = ins.tj_test
 
     power_factor_phi = math.acos(power_factor) * 180 / math.pi
     step = 1
@@ -96,8 +99,8 @@ def mark_sim_output_calc(file_values, input_file_values):
         time_division = 1.0 / freq_output / 360.0 * 1000.0 * 1000.0 * step
         switches_per_cycle_per_degree = freq_carrier / freq_output / 360.0 * 1000 * step
         if initflag:
-            tj_try_igbt = tj_test
-            tj_try_fwd = tj_test
+            tj_try_igbt = ins.tj_test
+            tj_try_fwd = ins.tj_test
         else:
             tj_try_igbt = tj_igbt
             tj_try_fwd = tj_fwd
