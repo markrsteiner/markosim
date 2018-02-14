@@ -1,10 +1,6 @@
 import math
 import numpy as np
-import pandas as pd
 
-
-# global diode_dict
-# diode_dict= []
 
 def get_igbt_rth_from_time(time, transient_thermal_values):
     num1 = transient_thermal_values['igbt_r1_per_r0_value'] * (
@@ -19,7 +15,7 @@ def get_igbt_rth_from_time(time, transient_thermal_values):
     return rth_from_time
 
 
-def get_fwd_rth_from_time(time, transient_thermal_values):
+def get_fwd_rth_from_time(time, transient_thermal_values, flag):
     num1 = transient_thermal_values['fwd_r1a_per_rd0_value'] * (
             1.0 - math.exp(-1.0 * time / transient_thermal_values['fwd_t1a_per_jd1_value']))
     num2 = transient_thermal_values['fwd_r2a_per_jd0_value'] * (
@@ -28,88 +24,90 @@ def get_fwd_rth_from_time(time, transient_thermal_values):
             1.0 - math.exp(-1.0 * time / transient_thermal_values['fwd_t3_value']))
     num4 = transient_thermal_values['fwd_r4a_per_rd1_value'] * (
             1.0 - math.exp(-1.0 * time / transient_thermal_values['fwd_t4_value']))
-    # if flag == True:
-    #     diode_dict.append([time, num1, num2, num3, num4])
     rth_from_time = (num1 + num2 + num3 + num4) * transient_thermal_values['rth_di_value']
     return rth_from_time
 
 
-def rth_integral(spcd, scalar, growth, time):
-    time = float(time / 360)
-    index = 0
-    time_check = spcd * (time * 360 + index)
-    denom1 = (1 - math.exp(-spcd * 360 / growth))
-    num1 = time / denom1
-    num2 = math.exp(-spcd / growth * ((time + 1) * 360 + index)) / denom1
-    # num3 = math.exp(-spcd*index/growth)/denom1
-    # num4 = 1/denom1
-    num5 = time * math.exp(-spcd * 360 / growth) / denom1
-    # num6 = math.exp(-spcd*360/growth)/denom1
-    out = scalar * (num1 + num2 - num5)
-
+def rth_integral(spcd, index, scalar, growth, time):
+    denom = math.exp(-360 * spcd / growth) - 1
+    num1 = -math.exp(-spcd * (720 * time + 2 * index + 721) / (2 * growth))
+    num2 = -time
+    num3 = time * math.exp(-360 * spcd / growth)
+    num4 = math.exp(-spcd * (1 + 2 * index) / (2 * growth))
+    num5 = -1
+    num6 = math.exp(-360 * spcd / growth)
+    out = scalar / denom * (num1 + num2 + num3 + num4 + num5 + num6)
     return out
 
 
-def integrate_rth_fwd(spcd, start_time, stop_time, transient_thermal_values):
-    stop_time = start_time - 7920
-    num1 = rth_integral(spcd, transient_thermal_values['fwd_r1a_per_rd0_value'], transient_thermal_values['fwd_t1a_per_jd1_value'], start_time - 0.49)
-    num2 = rth_integral(spcd, transient_thermal_values['fwd_r1a_per_rd0_value'], transient_thermal_values['fwd_t1a_per_jd1_value'], stop_time)
-    num9 = num1 - num2
-    num3 = rth_integral(spcd, transient_thermal_values['fwd_r2a_per_jd0_value'], transient_thermal_values['fwd_t2a_per_td1_value'], start_time - 0.46)
-    num4 = rth_integral(spcd, transient_thermal_values['fwd_r2a_per_jd0_value'], transient_thermal_values['fwd_t2a_per_td1_value'], stop_time)
-    num10 = num3 - num4
-    num5 = rth_integral(spcd, transient_thermal_values['fwd_r3a_per_td0_value'], transient_thermal_values['fwd_t3_value'], start_time - 0.194)
-    num6 = rth_integral(spcd, transient_thermal_values['fwd_r3a_per_td0_value'], transient_thermal_values['fwd_t3_value'], stop_time)
-    num11 = num5 - num6
-    num7 = rth_integral(spcd, transient_thermal_values['fwd_r4a_per_rd1_value'], transient_thermal_values['fwd_t4_value'], start_time + 0.11)
-    num8 = rth_integral(spcd, transient_thermal_values['fwd_r4a_per_rd1_value'], transient_thermal_values['fwd_t4_value'], stop_time)
-    num12 = num7 - num8
-    time_check = spcd * (start_time - 7920)
-    num13 = get_fwd_rth_from_time(time_check, transient_thermal_values, False)
-    rth_from_time = (num9 + num10 + num11 + num12 + num13) * transient_thermal_values['rth_di_value']
+def get_igbt_rth_from_time(time, transient_thermal_values):
+    num1 = transient_thermal_values['igbt_r1_per_r0_value'] * (
+            1.0 - math.exp(-1.0 * time / transient_thermal_values['igbt_t1_per_j1_value']))
+    num2 = transient_thermal_values['igbt_r2_per_j0_value'] * (
+            1.0 - math.exp(-1.0 * time / transient_thermal_values['igbt_t2_per_t1_value']))
+    num3 = transient_thermal_values['igbt_r3_per_t0_value'] * (
+            1.0 - math.exp(-1.0 * time / transient_thermal_values['igbt_t3_value']))
+    num4 = transient_thermal_values['igbt_r4_per_r1_value'] * (
+            1.0 - math.exp(-1.0 * time / transient_thermal_values['igbt_t4_value']))
+    rth_from_time = (num1 + num2 + num3 + num4) * transient_thermal_values['rth_tr_value']
+    return rth_from_time
+
+
+def integrate_rth_igbt(spcd, start_time, index, transient_thermal_values):
+    start_time = math.floor(start_time / 360)
+    num1 = rth_integral(spcd, index, transient_thermal_values['igbt_r1_per_r0_value'], transient_thermal_values['igbt_t1_per_j1_value'], start_time)
+    num2 = rth_integral(spcd, index, transient_thermal_values['igbt_r2_per_j0_value'], transient_thermal_values['igbt_t2_per_t1_value'], start_time)
+    num3 = rth_integral(spcd, index, transient_thermal_values['igbt_r3_per_t0_value'], transient_thermal_values['igbt_t3_value'], start_time)
+    num4 = rth_integral(spcd, index, transient_thermal_values['igbt_r4_per_r1_value'], transient_thermal_values['igbt_t4_value'], start_time)
+    rth_from_time = (num1 + num2 + num3 + num4) * transient_thermal_values['rth_tr_value']
+    return rth_from_time
+
+
+def integrate_rth_fwd(spcd, start_time, index, transient_thermal_values):
+    start_time = math.floor(start_time / 360)
+    num1 = rth_integral(spcd, index, transient_thermal_values['fwd_r1a_per_rd0_value'], transient_thermal_values['fwd_t1a_per_jd1_value'], start_time)
+    num2 = rth_integral(spcd, index, transient_thermal_values['fwd_r2a_per_jd0_value'], transient_thermal_values['fwd_t2a_per_td1_value'], start_time)
+    num3 = rth_integral(spcd, index, transient_thermal_values['fwd_r3a_per_td0_value'], transient_thermal_values['fwd_t3_value'], start_time)
+    num4 = rth_integral(spcd, index, transient_thermal_values['fwd_r4a_per_rd1_value'], transient_thermal_values['fwd_t4_value'], start_time)
+    rth_from_time = (num1 + num2 + num3 + num4) * transient_thermal_values['rth_di_value']
     return rth_from_time
 
 
 def create_thermal_resistance_dict(input_fo, transient_thermal_values):
     igbt_dc_rth = get_igbt_rth_from_time(10.0, transient_thermal_values)
-    fwd_dc_rth = get_fwd_rth_from_time(10.0, transient_thermal_values)
+    fwd_dc_rth = get_fwd_rth_from_time(10.0, transient_thermal_values, False)
     sec_per_cycle_degree = 1.0 / input_fo / 360.0
     time_value = sec_per_cycle_degree / 2.0
     time_step = 0.0
-    # degree_count = -360
+    degree_count = -360
 
-    rth_dict_igbt = [0 for __ in range(360)]
-    rth_dict_fwd = [0 for __ in range(360)]
+    rth_dict_igbt = np.zeros(360)
+    rth_dict_fwd = np.zeros(360)
 
-    test = []
     while time_value <= 10.0:
-        # degree_count += 360
+        degree_count += 360
         time_step += sec_per_cycle_degree * 360.0
         igbt_trans_rth = get_igbt_rth_from_time(time_step, transient_thermal_values)
-        fwd_trans_rth = get_fwd_rth_from_time(time_step, transient_thermal_values)
-        for index1 in range(360):
-            # count = time_value/sec_per_cycle_degree
-            rth_dict_igbt[index1] += get_igbt_rth_from_time(time_value, transient_thermal_values)  # integrate to reach this value somehow
-            # if igbt_trans_rth / igbt_dc_rth >= 0.99 and fwd_trans_rth / fwd_dc_rth >= 0.99:
-            #     test.append(rth_dict_igbt[index1])
-            rth_dict_fwd[index1] += get_fwd_rth_from_time(time_value, transient_thermal_values)
-            time_value += sec_per_cycle_degree
+        fwd_trans_rth = get_fwd_rth_from_time(time_step, transient_thermal_values, False)
+        # for index1 in range(360):
+        #     rth_dict_igbt[index1] += get_igbt_rth_from_time(time_value, transient_thermal_values)  # integrate to reach this value somehow
+        #     rth_dict_fwd[index1] += get_fwd_rth_from_time(time_value, transient_thermal_values, False)
+        #     time_value += sec_per_cycle_degree
         if igbt_trans_rth / igbt_dc_rth >= 0.99 and fwd_trans_rth / fwd_dc_rth >= 0.99:
             break
-    # f = pd.DataFrame(diode_dict)
-    # f.to_csv('read_me.csv')
-    for x in range(len(rth_dict_fwd)):
-        rth_dict_fwd[x] = rth_dict_fwd[x] * transient_thermal_values['rth_di_value']
-    # check = np.sum(rth_dict_fwd)
-    # rth_fwd_int = []
-    # for i in range(360):
-    #     rth_fwd_int.append(integrate_rth_fwd(sec_per_cycle_degree, degree_count + i*sec_per_cycle_degree*360*60 + sec_per_cycle_degree*360*30, 0, transient_thermal_values))
-    with open('output_test.txt', 'w+') as file:
-        file.write(str(test))
+
+    rth_fwd_int = []
+    rth_igbt_int = []
+    time_value = time_step + sec_per_cycle_degree / 2
+    for i in range(360):
+        rth_fwd_int.append(integrate_rth_fwd(sec_per_cycle_degree, degree_count, i, transient_thermal_values))
+        rth_igbt_int.append(integrate_rth_igbt(sec_per_cycle_degree, degree_count, i, transient_thermal_values))
 
     results = {}
-    results['igbt_thermo'] = rth_dict_igbt
-    results['fwd_thermo'] = rth_dict_fwd
+    results['igbt_thermo'] = rth_igbt_int
+    results['fwd_thermo'] = rth_fwd_int
+    # results['igbt_thermo'] = rth_dict_igbt
+    # results['fwd_thermo'] = rth_dict_fwd
     results['time_value'] = time_value
     results['sec_per_cycle_degree'] = sec_per_cycle_degree
     return results
@@ -142,12 +140,13 @@ def tj_max_calculation(p_igbt_ave, p_fwd_ave, p_igbt_inst_list, p_fwd_inst_list,
         tj_fwd_inst -= (p_fwd_inst_list[359] - p_fwd_ave) * rth_dict_fwd[
             index1]
         rth_dict_igbt[index1] += get_igbt_rth_from_time(time_value, transient_thermal_values)
-        rth_dict_fwd[index1] += get_fwd_rth_from_time(time_value, transient_thermal_values)
+        rth_dict_fwd[index1] += get_fwd_rth_from_time(time_value, transient_thermal_values, False)
         tj_igbt_inst += (p_igbt_inst_list[0] - p_igbt_ave) * rth_dict_igbt[
             index1]
         tj_fwd_inst += (p_fwd_inst_list[0] - p_fwd_ave) * rth_dict_fwd[
             index1]
         time_value += sec_per_cycle_degree
+
         for degree_count in range(1, 360):
             delta_p_igbt = p_igbt_inst_list[degree_count] - p_igbt_inst_list[degree_count - 1]
             delta_p_fwd = p_fwd_inst_list[degree_count] - p_fwd_inst_list[degree_count - 1]

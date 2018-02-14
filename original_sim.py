@@ -5,10 +5,10 @@ import tcmax
 
 
 def m_sim_output_calc(file_values, input_file_values):
-    ins = sim_tools.InputFile(input_file_values)
-    refs = sim_tools.InputFile(file_values)
+    # ins = sim_tools.InputFile(input_file_values)
+    # refs = sim_tools.InputFile(file_values)
 
-    ins.tj_test = float(input_file_values['ins.tj_test'])
+    tj_test = float(input_file_values['tj_test'])
     input_bus_voltage = float(input_file_values['input_bus_voltage'])
     input_ic_arms = float(input_file_values['input_ic_arms'])
     power_factor = float(input_file_values['power_factor'])
@@ -52,7 +52,7 @@ def m_sim_output_calc(file_values, input_file_values):
     e_rg_from_e_rg_150 = file_values['e_rg_from_e_rg_150']
     e_rr_from_e_rg_150 = file_values['e_rr_from_e_rg_150']
 
-    if ins.tj_test == 125:
+    if tj_test == 125:
         ic_from_vcesat = ic_from_vcesat_125
         vcesat_from_vcesat = vcesat_from_vcesat_125
         ie_from_vecsat = ie_from_vecsat_125
@@ -69,7 +69,7 @@ def m_sim_output_calc(file_values, input_file_values):
         e_off_from_e_off = e_off_from_e_off_125
         e_rg_from_e_rg = e_rg_from_e_rg_125
         e_rr_from_e_rg = e_rr_from_e_rg_125
-    if ins.tj_test == 150:
+    if tj_test == 150:
         ic_from_vcesat = ic_from_vcesat_150
         vcesat_from_vcesat = vcesat_from_vcesat_150
         ie_from_vecsat = ie_from_vecsat_150
@@ -115,7 +115,7 @@ def m_sim_output_calc(file_values, input_file_values):
     time_division = 1.0 / freq_output / 360.0 * 1000.0 * 1000.0 * step
     switches_per_cycle_per_degree = freq_carrier / freq_output / 360.0 * 1000 * step * 1.0
 
-    for degree_count in range(1, 361):
+    for degree_count in range(1, 361, step):
         duty_cycle = []
         output_voltage = []
         rad_delta = (degree_count - step / 2)
