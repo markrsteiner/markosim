@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5bc18e22-9741-4f8a-9eb2-3a9b373fa9a4" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/input_sweep_maker.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/value_getter.py" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/mark_sim.py" afterPath="$PROJECT_DIR$/mark_sim.py" />
-      <change beforePath="$PROJECT_DIR$/original_sim.py" afterPath="$PROJECT_DIR$/original_sim.py" />
-      <change beforePath="$PROJECT_DIR$/sim_tools.py" afterPath="$PROJECT_DIR$/sim_tools.py" />
-      <change beforePath="$PROJECT_DIR$/tcmax.py" afterPath="$PROJECT_DIR$/tcmax.py" />
+      <change beforePath="$PROJECT_DIR$/sim_withfile.py" afterPath="$PROJECT_DIR$/sim_withfile.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -22,8 +17,8 @@
       <file leaf-file-name="sim_withfile.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sim_withfile.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="9" column="16" lean-forward="false" selection-start-line="9" selection-start-column="16" selection-end-line="9" selection-end-column="16" />
+            <state relative-caret-position="225">
+              <caret line="15" column="35" lean-forward="false" selection-start-line="15" selection-start-column="35" selection-end-line="15" selection-end-column="35" />
               <folding />
             </state>
           </provider>
@@ -41,11 +36,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sim_tools.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="sim_tools.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/sim_tools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1090">
-              <caret line="97" column="29" lean-forward="false" selection-start-line="97" selection-start-column="29" selection-end-line="97" selection-end-column="29" />
+            <state relative-caret-position="161">
+              <caret line="105" column="0" lean-forward="false" selection-start-line="105" selection-start-column="0" selection-end-line="105" selection-end-column="72" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -68,7 +63,7 @@
       <file leaf-file-name="original_sim.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/original_sim.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1648">
+            <state relative-caret-position="-430">
               <caret line="119" column="27" lean-forward="false" selection-start-line="119" selection-start-column="27" selection-end-line="119" selection-end-column="27" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -77,7 +72,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="input_sweep_maker.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="input_sweep_maker.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/input_sweep_maker.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="360">
@@ -127,8 +122,8 @@
       <find>interp</find>
       <find>sp.</find>
       <find>on</find>
-      <find>print</find>
       <find>e_rr</find>
+      <find>print</find>
       <find>origin</find>
     </findStrings>
     <replaceStrings>
@@ -189,15 +184,16 @@
         <option value="$PROJECT_DIR$/mark_sim.py" />
         <option value="$PROJECT_DIR$/original_sim.py" />
         <option value="$PROJECT_DIR$/value_getter.py" />
-        <option value="$PROJECT_DIR$/sim_withfile.py" />
         <option value="$PROJECT_DIR$/sim_tools.py" />
         <option value="$PROJECT_DIR$/input_sweep_maker.py" />
+        <option value="$PROJECT_DIR$/sim_withfile.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-1" />
     <option name="y" value="23" />
-    <option name="width" value="1383" />
+    <option name="width" value="1440" />
     <option name="height" value="809" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
@@ -256,7 +252,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.value_getter">
+  <component name="RunManager" selected="Python.sim_withfile">
     <configuration name="input_sweep_maker" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -356,8 +352,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.value_getter" />
-        <item index="1" class="java.lang.String" itemvalue="Python.sim_withfile" />
+        <item index="0" class="java.lang.String" itemvalue="Python.sim_withfile" />
+        <item index="1" class="java.lang.String" itemvalue="Python.value_getter" />
         <item index="2" class="java.lang.String" itemvalue="Python.input_sweep_maker" />
         <item index="3" class="java.lang.String" itemvalue="Python.profiler" />
         <item index="4" class="java.lang.String" itemvalue="Python.test" />
@@ -497,11 +493,18 @@
       <option name="project" value="LOCAL" />
       <updated>1518469712327</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="added file ability. looks pretty good now.">
+      <created>1518623998734</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1518623998734</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1" y="23" width="1440" height="809" extended-state="6" />
+    <frame x="-1" y="23" width="1440" height="809" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16944444" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -569,7 +572,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/value_getter.py</url>
-          <line>35</line>
+          <line>34</line>
           <option name="timeStamp" value="163" />
         </line-breakpoint>
       </breakpoints>
@@ -980,16 +983,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/original_sim.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1648">
-          <caret line="119" column="27" lean-forward="false" selection-start-line="119" selection-start-column="27" selection-end-line="119" selection-end-column="27" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mark_sim.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-825">
@@ -1000,20 +993,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sim_withfile.py">
+    <entry file="file://$PROJECT_DIR$/input_sweep_maker.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="16" lean-forward="false" selection-start-line="9" selection-start-column="16" selection-end-line="9" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sim_tools.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1090">
-          <caret line="97" column="29" lean-forward="false" selection-start-line="97" selection-start-column="29" selection-end-line="97" selection-end-column="29" />
+        <state relative-caret-position="360">
+          <caret line="24" column="10" lean-forward="false" selection-start-line="24" selection-start-column="10" selection-end-line="24" selection-end-column="10" />
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#0#16#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1028,12 +1013,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/input_sweep_maker.py">
+    <entry file="file://$PROJECT_DIR$/original_sim.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="24" column="10" lean-forward="false" selection-start-line="24" selection-start-column="10" selection-end-line="24" selection-end-column="10" />
+        <state relative-caret-position="-430">
+          <caret line="119" column="27" lean-forward="false" selection-start-line="119" selection-start-column="27" selection-end-line="119" selection-end-column="27" />
           <folding>
-            <element signature="e#0#16#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sim_withfile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="35" lean-forward="false" selection-start-line="15" selection-start-column="35" selection-end-line="15" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sim_tools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="161">
+          <caret line="105" column="0" lean-forward="false" selection-start-line="105" selection-start-column="0" selection-end-line="105" selection-end-column="72" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
