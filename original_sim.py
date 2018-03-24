@@ -95,7 +95,7 @@ def m_sim_output_calc(file_values, input_file_values):
     e_rr_from_e_rr = sim_tools.origin_checker(e_rr_from_e_rr)
 
     power_factor_phi = math.acos(power_factor) * 180 / math.pi
-    step = 1
+    step = int(1)
 
     p_igbt_cond = []
     e_sw_on = []
@@ -115,10 +115,10 @@ def m_sim_output_calc(file_values, input_file_values):
     time_division = 1.0 / freq_output / 360.0 * 1000.0 * 1000.0 * step
     switches_per_cycle_per_degree = freq_carrier / freq_output / 360.0 * 1000 * step * 1.0
 
-    for degree_count in range(1, 361, step):
+    for degree_count in range(1, 1 + int(360 / step)):
         duty_cycle = []
         output_voltage = []
-        rad_delta = (degree_count - step / 2)
+        rad_delta = (degree_count * step - step / 2)
         duty_cycle.append((1.0 + mod_depth * math.sin(rad_delta / 180.0 * math.pi)) / 2.0)
         duty_cycle.append(1.0 - duty_cycle[0])
         duty_cycle.append((1.0 + mod_depth * math.sin((rad_delta - 120.0) / 180.0 * math.pi)) / 2.0)
@@ -201,7 +201,7 @@ def m_sim_output_calc(file_values, input_file_values):
 
     tc_max_results = tcmax.tj_max_calculation(p_igbt_total, p_fwd_total, p_igbt_tcmax, p_fwd_tcmax, input_tc,
                                               freq_output, tj_igbt, tj_fwd,
-                                              file_values)
+                                              file_values, step)
 
     tj_max_igbt = tc_max_results['tj_max_igbt']
     delta_tj_max_igbt = tj_max_igbt - delta_tc
