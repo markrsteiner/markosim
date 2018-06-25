@@ -9,11 +9,6 @@ import time
 import math
 
 
-class InputFile(object):
-    def __init__(self, **kw):
-        self.__dict__.update(kw)
-
-
 def input_file_checker(input_file):
     if len(input_file['input_bus_voltage']) > 1:
         return True
@@ -21,7 +16,6 @@ def input_file_checker(input_file):
 
 
 def m_sim_runner(file_values, input_file_values):
-    count = 0
     if len(input_file_values['input_bus_voltage']) > 1:
         output_file_temp_3 = []
         input_file_temp_2 = []
@@ -36,13 +30,15 @@ def m_sim_runner(file_values, input_file_values):
             output_file_temp_1 = [math.floor(y * 100) / 100 for y in output_file.values()]
             output_file_temp_3.append(output_file_temp_1)
             output_file_temp_2 = [y for y in output_file.keys()]
-            count += 1
-            print(count)
         input_file_temp_2 = np.transpose(input_file_temp_2)
         output_file_temp_3 = np.transpose(output_file_temp_3)
+        print(output_file_temp_3)
         output_file_dict = {output_file_temp_2[x]: output_file_temp_3[x] for x in range(len(output_file_temp_2))}
         input_file_dict = {input_file_values_temp_2[x]: input_file_temp_2[x] for x in range(len(input_file_values_temp_2))}
+        print(output_file_dict)
+        print(input_file_dict)
         full_file_dict = {**input_file_dict, **output_file_dict}
+        print(full_file_dict)
     else:
         output_file = original_sim.m_sim_output_calc(file_values, input_file_values)
         full_file_dict = {**input_file_values, **output_file}
@@ -66,9 +62,13 @@ def mark_sim_runner(file_values, input_file_values):
             output_file_temp_2 = [y for y in output_file.keys()]
         input_file_temp_2 = np.transpose(input_file_temp_2)
         output_file_temp_3 = np.transpose(output_file_temp_3)
+        print(output_file_temp_3)
         output_file_dict = {output_file_temp_2[x]: output_file_temp_3[x] for x in range(len(output_file_temp_2))}
         input_file_dict = {input_file_values_temp_2[x]: input_file_temp_2[x] for x in range(len(input_file_values_temp_2))}
+        print(output_file_dict)
+        print(input_file_dict)
         full_file_dict = {**input_file_dict, **output_file_dict}
+        print(full_file_dict)
     else:
         output_file = original_sim.m_sim_output_calc(file_values, input_file_values)
         full_file_dict = {**input_file_values, **output_file}
@@ -104,7 +104,8 @@ def output_file_writer(output_file):
                'delta_Tj_Max_FWD',
                'Tj_Max_FWD']
     module_file = 'output' + time.strftime("%d_%b_%y_%H_%M_%S") + '.csv'
-    df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in output_file.items()]), columns=columns)
+    print(type(output_file))
+    df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in output_file.items()]), columns=columns).T
     df.to_csv(module_file)
 
 
@@ -278,6 +279,7 @@ def module_file_updated_writer(file_values):
                    ]
 
     module_file = 'module_file_revised.csv'
+    print(type(file_values))
     df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in file_values.items()]), columns=column_list)
     df.to_csv(module_file)
 
@@ -293,20 +295,13 @@ def array_cleaner(independent_var, dependent_var, start, stop,
                   length):  # could try some sort of log system here but still thinking
     output_dependent_array = []
     output_independent_array = []
-    independent_var_list = []
-    min = np.min(independent_var)
-    if np.max(independent_var) > 100:
-        list = [start, start + 7 / 2400 * stop, start + 3 / 240 * stop, start + 6 / 240 * stop, start + stop / 20, start + stop / 8, start + 45 / 240 * stop, start + stop / 4,
-                start + stop / 2, stop]
-    else:
-        list = [min, (min + 0.6) / 10 * stop, (min + 1) / 10 * stop, (min + 1.5) / 10 * stop, (min + 2.5) / 10 * stop, (min + 4) / 10 * stop, (min + 3.7) / 10 * stop,
-                (min + 5.8) / 10 * stop, (min + 8) / 10 * stop, stop]
-    for x in range(10):
-        independent_var_list.append(list[x])
+    independent_var_list = np.linspace(start, stop, length, endpoint=True)
 
+    dependent_interp = sp.UnivariateSpline(independent_var, dependent_var, k=2)
     for x in range(0, int(length)):
         output_dependent_array.append(independent_var_list[x])
-        output_independent_array.append(float(np.interp(independent_var_list[x], independent_var, dependent_var)))
+        output_independent_array.append(float(dependent_interp(independent_var_list[x])))
+
     return output_dependent_array, output_independent_array
 
 
@@ -332,77 +327,39 @@ def threepeat_array(array1, array2, array3):
     return output
 
 
-def vce_ic_maker(ic25, vce25, ic125, vce125, ic150, vce150, max):
-    output1, vcesat25 = array_cleaner(ic25, vce25, 0, max, 10)
-    output1, vcesat125 = array_cleaner(ic125, vce125, 0, max, 10)
-    output1, vcesat150 = array_cleaner(ic150, vce150, 0, max, 10)
-    # output1 = origin_checker(output1)
-    # vcesat25 = origin_checker(vcesat25)
-    # vcesat125 = origin_checker(vcesat125)
-    # vcesat150 = origin_checker(vcesat150)
-    grid_tj = np.mgrid[25:150:10j]
-    temp25 = np.full(len(vcesat25), 25.)
-    temp125 = np.full(len(vcesat125), 125.)
-    temp150 = np.full(len(vcesat150), 150.)
-    temp_all = threepeat_array(temp25, temp125, temp150)
-    vcesat_all = threepeat_array(vcesat25, vcesat125, vcesat150)
-    current_all = threepeat_array(output1, output1, output1)
-    out = {}
-    out['grid_tj'] = grid_tj
-    out['temp_all'] = temp_all
-    out['vcesat_all'] = vcesat_all
-    out['current_all'] = current_all
-    return out
-
-
-def vce_from_tj_ic_solver(ic_vce_dict, tj_in, ic_in):
+def vce_from_tj_ic_solver(ic25, vce25, ic125, vce125, ic150, vce150, tj_in, ic_in, max):
     if not ic_in == 0.0:
-        grid_tj = ic_vce_dict['grid_tj']
-        temp_all = ic_vce_dict['temp_all']
-        vcesat_all = ic_vce_dict['vcesat_all']
-        current_all = ic_vce_dict['current_all']
+        output1, vcesat25 = array_cleaner(ic25, vce25, 0, max, 10)
+        output1, vcesat125 = array_cleaner(ic125, vce125, 0, max, 10)
+        output1, vcesat150 = array_cleaner(ic150, vce150, 0, max, 10)
+        grid_tj = np.mgrid[25:150:10j]
+        temp25 = np.full(len(vcesat25), 25.)
+        temp125 = np.full(len(vcesat125), 125.)
+        temp150 = np.full(len(vcesat150), 150.)
+        temp_all = threepeat_array(temp25, temp125, temp150)
+        vcesat_all = threepeat_array(vcesat25, vcesat125, vcesat150)
+        current_all = threepeat_array(output1, output1, output1)
         grid_z0 = sp.griddata((temp_all, current_all), vcesat_all, (grid_tj, ic_in), method="linear")
-        vce_int = sp.interp1d(grid_tj, grid_z0, fill_value='extrapolate')
-        vce = vce_int(tj_in)
-        if vce < 0:
-            vce = 0
-        # vce = vce_for_temp(tj_in)
+        vce_for_temp = sp.UnivariateSpline(grid_tj,
+                                           grid_z0)
+        vce = vce_for_temp(tj_in)
     else:
         vce = 0
     return vce
 
 
-def esw_ic_maker(ic125, vce125, ic150, vce150, max):
-    output1, vcesat125 = array_cleaner(ic125, vce125, 0, max, 10)
-    output1, vcesat150 = array_cleaner(ic150, vce150, 0, max, 10)
-    # output1 = origin_checker(output1)
-    # vcesat125 = origin_checker(vcesat125)
-    # vcesat150 = origin_checker(vcesat150)
-    grid_tj = np.mgrid[125:150:10j]
-    temp125 = np.full(len(vcesat125), 125.)
-    temp150 = np.full(len(vcesat150), 150.)
-    temp_all = twopeat_array(temp125, temp150)
-    vcesat_all = twopeat_array(vcesat125, vcesat150)
-    current_all = twopeat_array(output1, output1)
-    out = {}
-    out['grid_tj'] = grid_tj
-    out['temp_all'] = temp_all
-    out['vcesat_all'] = vcesat_all
-    out['current_all'] = current_all
-    return out
-
-
-def esw_solver(esw_dict, tj_in, ic_in):
+def esw_solver(ic125, vce125, ic150, vce150, tj_in, ic_in, max):
     if not ic_in == 0.0:
-        grid_tj = esw_dict['grid_tj']
-        temp_all = esw_dict['temp_all']
-        vcesat_all = esw_dict['vcesat_all']
-        current_all = esw_dict['current_all']
+        output1, vcesat125 = array_cleaner(ic125, vce125, 0, max, 10)
+        output1, vcesat150 = array_cleaner(ic150, vce150, 0, max, 10)
+        grid_tj = np.mgrid[125:150:10j]
+        temp125 = np.full(len(vcesat125), 125.)
+        temp150 = np.full(len(vcesat150), 150.)
+        temp_all = twopeat_array(temp125, temp150)
+        vcesat_all = twopeat_array(vcesat125, vcesat150)
+        current_all = twopeat_array(output1, output1)
         grid_z0 = sp.griddata((temp_all, current_all), vcesat_all, (grid_tj, ic_in), method="linear")
-        vce = sp.interp1d(grid_tj, grid_z0, fill_value='extrapolate')
-        esw = vce(tj_in)
-        if esw < 0:
-            esw = 0
+        esw = np.interp(tj_in, grid_tj, grid_z0)
         # esw = vce_for_temp(tj_in)
     else:
         esw = 0
@@ -427,7 +384,7 @@ def esw_rg_checker(e_sw_rg, e_sw_ic, ic_e_sw, current_value, threshold):
 
 
 def esw_rg_fixer(esw_ic_esw, ic_ic_esw, esw_rg_esw, ic):
-    baseline = np.interp(ic_ic_esw, esw_ic_esw)
+    baseline = sp.UnivariateSpline(ic_ic_esw, esw_ic_esw)
     baseline_energy = float(baseline(ic))
     for x in range(0, len(esw_rg_esw)):
         esw_rg_esw[x] = esw_rg_esw[x] / float(baseline_energy)
