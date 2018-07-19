@@ -23,7 +23,9 @@ def get_fwd_rth_from_time(time, transient_thermal_values, flag):
 def rth_integral_two(step, spcd, index, scalar, growth, time):
     power_val = scalar / growth
     denom = 1 - math.exp(1)
-    num1 = - math.exp(pow(-spcd / step * (360 * time + index + 0.5), power_val)) + 1
+    num_den = spcd / step * (360 * time + index + 0.5)
+    num_pow = -pow(num_den, power_val)
+    num1 = - math.exp(num_pow) + 1
     num2 = pow(spcd / step * (360 * time + index + 0.5), power_val)
     num3 = -math.exp(1) * pow(spcd / step * (360 * time + index + 0.5), power_val)
     output = (num1 + num2 + num3) / denom

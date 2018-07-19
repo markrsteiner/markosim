@@ -1,4 +1,5 @@
 import numpy as np
+import scipy as sp
 import math
 import sim_tools
 import tcmax
@@ -10,7 +11,7 @@ def m_sim_output_calc(file_values, input_file_values):
 
     tj_test = float(input_file_values['tj_test'])
     input_bus_voltage = float(input_file_values['input_bus_voltage'])
-    input_ic_arms = float(input_file_values['input_ic_arms'])
+    input_ic_peak = float(input_file_values['input_ic_peak'])
     power_factor = float(input_file_values['power_factor'])
     mod_depth = float(input_file_values['mod_depth'])
     freq_carrier = float(input_file_values['freq_carrier'])
@@ -97,6 +98,7 @@ def m_sim_output_calc(file_values, input_file_values):
     power_factor_phi = math.acos(power_factor) * 180 / math.pi
     step = int(1)
 
+    e_sw_fco = []
     p_igbt_cond = []
     e_sw_on = []
     e_sw_off = []
@@ -129,7 +131,7 @@ def m_sim_output_calc(file_values, input_file_values):
         elif duty_cycle[0] == 0.0 and duty_cycle[1] == 0.0:
             output_voltage[0] += (output_voltage[1] + output_voltage[2]) / 2.0
 
-        output_current = input_ic_arms * math.sin((rad_delta - power_factor_phi) / 180 * math.pi)
+        output_current = input_ic_peak * math.sin((rad_delta - power_factor_phi) / 180 * math.pi)
         igbt_current = diode_current = 0.0
         if output_current > 0.0:
             igbt_current = output_current
@@ -137,18 +139,29 @@ def m_sim_output_calc(file_values, input_file_values):
             diode_current = -output_current
 
         if igbt_current >= 0.0:
-            vce_at_ic = np.interp(igbt_current, ic_from_vcesat, vcesat_from_vcesat)
+            # vce_at_ic = np.interp(igbt_current, ic_from_vcesat, vcesat_from_vcesat)
+            icvce = sp.interpolate.interp1d(ic_from_vcesat, vcesat_from_vcesat, fill_value='extrapolate')
+            vce_at_ic = icvce(igbt_current)
+
             igbt_p_vce = igbt_current * time_division * vce_at_ic * output_voltage[0] / input_bus_voltage / 1000.0
 
-            e_sw_on_at_ic = np.interp(igbt_current, ic_from_e_sw_on, e_sw_on_from_e_sw_on)
-            e_sw_off_at_ic = np.interp(igbt_current, ic_from_e_sw_off, e_sw_off_from_e_sw_off)
+            # e_sw_on_at_ic = np.interp(igbt_current, ic_from_e_sw_on, e_sw_on_from_e_sw_on)
+            iceswon = sp.interpolate.interp1d(ic_from_e_sw_on, e_sw_on_from_e_sw_on, fill_value='extrapolate')
+            e_sw_on_at_ic = iceswon(igbt_current)
+            # e_sw_off_at_ic = np.interp(igbt_current, ic_from_e_sw_off, e_sw_off_from_e_sw_off)
+            iceswoff = sp.interpolate.interp1d(ic_from_e_sw_off, e_sw_off_from_e_sw_off, fill_value='extrapolate')
+            e_sw_off_at_ic = iceswoff(igbt_current)
             if 1.0 > output_voltage[0] / input_bus_voltage > 0.0:
                 igbt_e_sw_on_fco_ratio = switches_per_cycle_per_degree * e_sw_on_at_ic
                 igbt_e_sw_off_fco_ratio = switches_per_cycle_per_degree * e_sw_off_at_ic
         if diode_current >= 0.0:
-            vec_at_ic = np.interp(diode_current, ie_from_vecsat, vecsat_from_vecsat)
+            # vec_at_ic = np.interp(diode_current, ie_from_vecsat, vecsat_from_vecsat)
+            ievec = sp.interpolate.interp1d(ie_from_vecsat, vecsat_from_vecsat, fill_value='extrapolate')
+            vec_at_ic = ievec(diode_current)
             fwd_p_vce = diode_current * time_division * vec_at_ic * output_voltage[0] / input_bus_voltage / 1000.0
-            err_from_ic = np.interp(diode_current, ic_from_e_rr, e_rr_from_e_rr)
+            # err_from_ic = np.interp(diode_current, ic_from_e_rr, e_rr_from_e_rr)
+            icerr = sp.interpolate.interp1d(ic_from_e_rr, e_rr_from_e_rr, fill_value='extrapolate')
+            err_from_ic = icerr(diode_current)
         if 1.0 > output_voltage[0] / input_bus_voltage > 0.0:
             fwd_e_rr_fco_ratio = switches_per_cycle_per_degree * err_from_ic
 
@@ -166,6 +179,7 @@ def m_sim_output_calc(file_values, input_file_values):
         p_igbt_cond.append(igbt_p_vce * freq_output / 1000.0)
         e_sw_on.append(igbt_e_sw_on_fco_ratio * freq_output / 1000.0 * vcc_ratio * e_sw_on_from_rg_e_sw_on)
         e_sw_off.append(igbt_e_sw_off_fco_ratio * freq_output / 1000.0 * vcc_ratio * e_sw_off_from_rg_e_sw_off)
+        e_sw_fco.append(igbt_e_sw_off_fco_ratio)
         e_sw_igbt.append((
                                  igbt_e_sw_on_fco_ratio * vcc_ratio * e_sw_on_from_rg_e_sw_on + igbt_e_sw_off_fco_ratio * vcc_ratio * e_sw_off_from_rg_e_sw_off) * freq_output / 1000.0)
         p_fwd_cond.append(fwd_p_vce * freq_output / 1000.0)
@@ -228,5 +242,16 @@ def m_sim_output_calc(file_values, input_file_values):
     results['delta_Tj_Max_FWD'] = delta_tj_max_fwd
     results['Tj_Max_FWD'] = tj_max_fwd
     results['P_arm'] = p_arm_total
+
+    results['input_bus_voltage'] = input_bus_voltage
+    results['input_ic_peak'] = input_ic_peak
+    results['power_factor'] = power_factor
+    results['mod_depth'] = mod_depth
+    results['freq_carrier'] = freq_carrier
+    results['freq_output'] = freq_output
+    results['input_rg_on'] = input_rg_on
+    results['input_rg_off'] = input_rg_off
+    results['tj_test'] = tj_test
+    results['input_tc'] = input_tc
 
     return results

@@ -45,6 +45,51 @@ def m_sim_runner(file_values, input_file_values):
     return full_file_dict
 
 
+def tj_hold_runner(file_values, input_file_values):
+    if len(input_file_values['input_bus_voltage']) > 1:
+        output_file_temp_3 = []
+        input_file_temp_2 = []
+        for x in range(len(input_file_values['input_bus_voltage'])):
+            input_file_values_temp_1 = [y[x] for y in input_file_values.values()]
+            input_file_values_temp_2 = [y for y in input_file_values.keys()]
+            input_file_values_temp = {input_file_values_temp_2[x]: input_file_values_temp_1[x] for x in range(len(input_file_values_temp_1))}
+            input_file_temp_2.append(input_file_values_temp_1)
+
+            output_file = original_sim.m_sim_output_calc(file_values, input_file_values_temp)
+            MaxTemp = max(output_file['Tj_max_IGBT'], output_file['Tj_Max_FWD'])
+
+            while (MaxTemp < 149.999) or (MaxTemp > 150.001):
+                output_file = []
+                increment = (150 - MaxTemp)
+                if (increment > 100) or (increment < -100):
+                    if (increment > 100):
+                        increment = 50
+                    else:
+                        incremement = -50
+                input_file_values_temp['input_ic_peak'] += increment
+                print(input_file_values_temp['input_ic_peak'])
+
+                print(MaxTemp)
+                output_file = original_sim.m_sim_output_calc(file_values, input_file_values_temp)
+                MaxTemp = output_file['Tj_max_IGBT']
+
+            output_file_temp_1 = [math.floor(y * 100) / 100 for y in output_file.values()]
+            output_file_temp_3.append(output_file_temp_1)
+            output_file_temp_2 = [y for y in output_file.keys()]
+        input_file_temp_2 = np.transpose(input_file_temp_2)
+        output_file_temp_3 = np.transpose(output_file_temp_3)
+        print(output_file_temp_3)
+        output_file_dict = {output_file_temp_2[x]: output_file_temp_3[x] for x in range(len(output_file_temp_2))}
+        input_file_dict = {input_file_values_temp_2[x]: input_file_temp_2[x] for x in range(len(input_file_values_temp_2))}
+        print(output_file_dict)
+        print(input_file_dict)
+        full_file_dict = {**input_file_dict, **output_file_dict}
+        print(full_file_dict)
+    else:
+        output_file = original_sim.m_sim_output_calc(file_values, input_file_values)
+        full_file_dict = {**input_file_values, **output_file}
+    return full_file_dict
+
 def mark_sim_runner(file_values, input_file_values):
     if len(input_file_values['input_bus_voltage']) > 1:
         output_file_temp_3 = []
@@ -77,7 +122,7 @@ def mark_sim_runner(file_values, input_file_values):
 
 def output_file_writer(output_file):
     columns = ['input_bus_voltage',
-               'input_ic_arms',
+               'input_ic_peak',
                'power_factor',
                'mod_depth',
                'freq_carrier',
@@ -103,10 +148,12 @@ def output_file_writer(output_file):
                'Tj_Ave_FWD',
                'delta_Tj_Max_FWD',
                'Tj_Max_FWD']
-    module_file = 'output' + time.strftime("%d_%b_%y_%H_%M_%S") + '.csv'
+    output_file_name = 'output' + time.strftime("_%b_%d_%y_%H_%M_%S") + '.xlsx'
     print(type(output_file))
     df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in output_file.items()]), columns=columns).T
-    df.to_csv(module_file)
+    df.to_excel(output_file_name)
+    f = open(output_file_name)
+    f.close()
 
 
 def input_file_reader():
@@ -114,7 +161,7 @@ def input_file_reader():
 
     row_list = [["tj_test",
                  "input_bus_voltage",
-                 "input_ic_arms",
+                 "input_ic_peak",
                  "power_factor",
                  "mod_depth",
                  "freq_carrier",
@@ -127,6 +174,7 @@ def input_file_reader():
         with open(input_file, 'w+') as file:
             writer = csv.writer(file)
             writer.writerows(row_list)
+        file.close()
 
     row_list = row_list[0]
     value_dict = {}
@@ -138,8 +186,9 @@ def input_file_reader():
     return value_dict
 
 
-def module_file_reader():
-    module_file = 'module_file.csv'
+def module_file_reader(module_file):
+    # module_string = 'module_file_revised.csv'
+    module_string = module_file
 
     row_list = [["module_name",
                  "ic_from_vcesat_25",
@@ -201,16 +250,18 @@ def module_file_reader():
                  "current_value"
                  ]]
 
-    if not os.path.exists(module_file) and not os.path.exists('module_file_revised.csv'):
+    if not os.path.exists(module_file) and not os.path.exists(module_string):
         with open(module_file, 'w+') as file:
             writer = csv.writer(file)
             writer.writerows(row_list)
+        file.close()
 
     row_list = row_list[0]
     value_dict = {}
 
     for x in range(len(row_list)):
-        value_dict[row_list[x]] = pull_data_from_column('module_file_revised.csv', row_list[x])
+        # value_dict[row_list[x]] = pull_data_from_column('module_file_revised.csv', row_list[x])
+        value_dict[row_list[x]] = pull_data_from_column(module_string, row_list[x])
     for x in range(np.size(row_list)):
         if np.size(value_dict[row_list[x]]) == 1:
             value_dict[row_list[x]] = value_dict[row_list[x]][0]
