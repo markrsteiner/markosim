@@ -1,6 +1,6 @@
 import sim_tools
 
-file_values = sim_tools.module_file_reader('SKM400GB12E4.csv')
+file_values = sim_tools.module_file_reader('cm600dy-24t.xlsx')
 input_file_values = sim_tools.input_file_reader()
 sim_tools.file_value_checker(file_values)
 

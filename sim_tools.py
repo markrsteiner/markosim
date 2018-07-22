@@ -7,19 +7,22 @@ import original_sim
 import mark_sim
 import time
 import math
+import xlsxwriter
 
 
 def input_file_checker(input_file):
-    if len(input_file['input_bus_voltage']) > 1:
-        return True
-    return False
+    try:
+        if len(input_file['Vcc [V]']) > 1:
+            return True
+    except:
+        return False
 
 
 def m_sim_runner(file_values, input_file_values):
-    if len(input_file_values['input_bus_voltage']) > 1:
+    if input_file_values['Vcc [V]'] is np.ndarray:
         output_file_temp_3 = []
         input_file_temp_2 = []
-        for x in range(len(input_file_values['input_bus_voltage'])):
+        for x in range(len(input_file_values['Vcc [V]'])):
             input_file_values_temp_1 = [y[x] for y in input_file_values.values()]
             input_file_values_temp_2 = [y for y in input_file_values.keys()]
             input_file_values_temp = {input_file_values_temp_2[x]: input_file_values_temp_1[x] for x in range(len(input_file_values_temp_1))}
@@ -46,10 +49,10 @@ def m_sim_runner(file_values, input_file_values):
 
 
 def tj_hold_runner(file_values, input_file_values):
-    if len(input_file_values['input_bus_voltage']) > 1:
+    if len(input_file_values['Vcc [V]']) > 1:
         output_file_temp_3 = []
         input_file_temp_2 = []
-        for x in range(len(input_file_values['input_bus_voltage'])):
+        for x in range(len(input_file_values['Vcc [V]'])):
             input_file_values_temp_1 = [y[x] for y in input_file_values.values()]
             input_file_values_temp_2 = [y for y in input_file_values.keys()]
             input_file_values_temp = {input_file_values_temp_2[x]: input_file_values_temp_1[x] for x in range(len(input_file_values_temp_1))}
@@ -91,10 +94,10 @@ def tj_hold_runner(file_values, input_file_values):
     return full_file_dict
 
 def mark_sim_runner(file_values, input_file_values):
-    if len(input_file_values['input_bus_voltage']) > 1:
+    if len(input_file_values['Vcc [V]']) > 1:
         output_file_temp_3 = []
         input_file_temp_2 = []
-        for x in range(len(input_file_values['input_bus_voltage'])):
+        for x in range(len(input_file_values['Vcc [V]'])):
             input_file_values_temp_1 = [y[x] for y in input_file_values.values()]
             input_file_values_temp_2 = [y for y in input_file_values.keys()]
             input_file_values_temp = {input_file_values_temp_2[x]: input_file_values_temp_1[x] for x in range(len(input_file_values_temp_1))}
@@ -121,34 +124,34 @@ def mark_sim_runner(file_values, input_file_values):
 
 
 def output_file_writer(output_file):
-    columns = ['input_bus_voltage',
-               'input_ic_peak',
-               'power_factor',
-               'mod_depth',
-               'freq_carrier',
-               'freq_output',
-               'input_rg_on',
-               'input_rg_off',
-               'tj_test',
-               'input_tc',
-               'P_total_IGBT',
-               'E_sw_IGBT',
-               'P_cond_IGBT',
-               'E_sw_on_IGBT',
-               'E_sw_off_IGBT',
-               'Tc_Ave',
-               'delta_Tj_Ave_IGBT',
-               'Tj_Ave_IGBT',
-               'delta_Tj_Max_IGBT',
-               'Tj_max_IGBT',
-               'P_total_FWD',
-               'E_rr_FWD',
-               'P_cond_FWD',
-               'delta_Tj_Ave_FWD',
-               'Tj_Ave_FWD',
-               'delta_Tj_Max_FWD',
-               'Tj_Max_FWD']
-    output_file_name = 'output' + time.strftime("_%b_%d_%y_%H_%M_%S") + '.xlsx'
+    columns = ['Vcc [V]',
+               'Io [Apk]',
+               'PF [cos(\u03D5)]',
+               'Mod. Depth',
+               'fc [kHz]',
+               'fo [Hz]',
+               'rg on [\u03A9]',
+               'rg off [\u03A9]',
+               'Ts [\u00B0C]',
+               'P Total IGBT [W]',
+               'P Cond IGBT [W]',
+               'Psw IGBT [W]',
+               'Psw,on IGBT [W]',
+               'Psw,off IGBT [W]',
+               'ΔT\u2C7C ave. IGBT [K]',
+               'T\u2C7C ave. IGBT [\u00B0C]',
+               'ΔT\u2C7C Max_IGBT [K]',
+               'T\u2C7C Max IGBT [\u00B0C]',
+               'Tc ave. [\u00B0C]',
+               'P Total FWD [W]',
+               'P Cond FWD [W]',
+               'Prr FWD [W]',
+               'ΔT\u2C7C Ave FWD [K]',
+               'T\u2C7C Ave FWD [\u00B0C]',
+               'ΔT\u2C7C Max FWD [K]',
+               'T\u2C7C Max FWD [\u00B0C]'
+               ]
+    output_file_name = 'output' + time.strftime("__%b_%d__%H_%M_%S") + '.xlsx'
     print(type(output_file))
     df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in output_file.items()]), columns=columns).T
     df.to_excel(output_file_name)
@@ -157,29 +160,34 @@ def output_file_writer(output_file):
 
 
 def input_file_reader():
-    input_file = 'input_file.csv'
+    input_file = 'input_file.xlsx'
 
-    row_list = [["tj_test",
-                 "input_bus_voltage",
-                 "input_ic_peak",
-                 "power_factor",
-                 "mod_depth",
-                 "freq_carrier",
-                 "freq_output",
-                 "input_tc",
-                 "input_rg_on",
-                 "input_rg_off"]]
+    row_list = [['Vcc [V]',
+                 'Io [Apk]',
+                 'PF [cos(\u03D5)]',
+                 'Mod. Depth',
+                 'fc [kHz]',
+                 'fo [Hz]',
+                 'rg on [\u03A9]',
+                 'rg off [\u03A9]',
+                 'Ts [\u00B0C]'
+                 ]]
 
     if not os.path.exists(input_file):
-        with open(input_file, 'w+') as file:
-            writer = csv.writer(file)
-            writer.writerows(row_list)
-        file.close()
+        workbook = xlsxwriter.Workbook(input_file)
+        worksheet = workbook.add_worksheet()
+        worksheet.set_column('A:A', 20)
+        row_list_map = row_list[0]
+        worksheet.write(0, 0, "Iteration")
+        worksheet.write(0, 1, "1")
+        for x in range(len(row_list_map)):
+            worksheet.write(0, x + 1, row_list_map[x])
+        workbook.close()
 
     row_list = row_list[0]
     value_dict = {}
     for x in range(len(row_list)):
-        value_dict[row_list[x]] = pull_data_from_column(input_file, row_list[x])
+        value_dict[row_list[x]] = pull_data_from_column(input_file, row_list[x], None)
     for x in range(len(row_list)):
         if len(value_dict[row_list[x]]) == 1:
             value_dict[row_list[x]] = value_dict[row_list[x]][0]
@@ -261,7 +269,7 @@ def module_file_reader(module_file):
 
     for x in range(len(row_list)):
         # value_dict[row_list[x]] = pull_data_from_column('module_file_revised.csv', row_list[x])
-        value_dict[row_list[x]] = pull_data_from_column(module_string, row_list[x])
+        value_dict[row_list[x]] = pull_data_from_column(module_string, row_list[x], None)
     for x in range(np.size(row_list)):
         if np.size(value_dict[row_list[x]]) == 1:
             value_dict[row_list[x]] = value_dict[row_list[x]][0]
@@ -335,9 +343,11 @@ def module_file_updated_writer(file_values):
     df.to_csv(module_file)
 
 
-def pull_data_from_column(module_file, column_string):
-    df = pd.read_csv(module_file)
+def pull_data_from_column(module_file, column_string, indexcol):
+    df = pd.read_excel(module_file, index_col=indexcol)
+    print(df.columns)
     x = df[column_string].as_matrix()
+    # df.dropna()
     x = x[~np.isnan(x)]
     return x
 
