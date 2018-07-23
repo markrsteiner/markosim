@@ -1,8 +1,8 @@
 import sim_tools
 
-file_values = sim_tools.module_file_reader('cm600dy-24t.xlsx')
-input_file_values = sim_tools.input_file_reader()
-sim_tools.file_value_checker(file_values)
+file_values = sim_tools.module_file_reader('cm600dy-24t.xlsx')  # gets module file information
+input_file_values = sim_tools.input_file_reader()  # gets user input file information
+file_values = sim_tools.file_value_checker(file_values)
 
 m_sim_results = sim_tools.m_sim_runner(file_values, input_file_values)
 # m_sim_results = sim_tools.tj_hold_runner(file_values, input_file_values) #for tj hold tests only

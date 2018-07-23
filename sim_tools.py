@@ -10,16 +10,24 @@ import math
 import xlsxwriter
 
 
-def input_file_checker(input_file):
+def is_multiple_input(input_file):
     try:
-        if len(input_file['Vcc [V]']) > 1:
+        if len(input_file['Vcc [V]']) > 1:  # checks to see if there is more than one iteration of input values
             return True
     except:
         return False
 
 
+def vcc_value_decoder(vcc_value):
+    if vcc_value == 650:
+        return 300
+    if vcc_value == 1200:
+        return 600
+    return False
+
+
 def m_sim_runner(file_values, input_file_values):
-    if input_file_values['Vcc [V]'] is np.ndarray:
+    if type(input_file_values['Vcc [V]']) is np.ndarray:
         output_file_temp_3 = []
         input_file_temp_2 = []
         for x in range(len(input_file_values['Vcc [V]'])):
@@ -30,18 +38,14 @@ def m_sim_runner(file_values, input_file_values):
 
             output_file = original_sim.m_sim_output_calc(file_values, input_file_values_temp)
 
-            output_file_temp_1 = [math.floor(y * 100) / 100 for y in output_file.values()]
+            output_file_temp_1 = [math.floor(y * 100) / 100 for y in output_file.values()]  # limits output values to 2 decimal places
             output_file_temp_3.append(output_file_temp_1)
             output_file_temp_2 = [y for y in output_file.keys()]
         input_file_temp_2 = np.transpose(input_file_temp_2)
         output_file_temp_3 = np.transpose(output_file_temp_3)
-        print(output_file_temp_3)
         output_file_dict = {output_file_temp_2[x]: output_file_temp_3[x] for x in range(len(output_file_temp_2))}
         input_file_dict = {input_file_values_temp_2[x]: input_file_temp_2[x] for x in range(len(input_file_values_temp_2))}
-        print(output_file_dict)
-        print(input_file_dict)
         full_file_dict = {**input_file_dict, **output_file_dict}
-        print(full_file_dict)
     else:
         output_file = original_sim.m_sim_output_calc(file_values, input_file_values)
         full_file_dict = {**input_file_values, **output_file}
@@ -70,9 +74,7 @@ def tj_hold_runner(file_values, input_file_values):
                     else:
                         incremement = -50
                 input_file_values_temp['input_ic_peak'] += increment
-                print(input_file_values_temp['input_ic_peak'])
 
-                print(MaxTemp)
                 output_file = original_sim.m_sim_output_calc(file_values, input_file_values_temp)
                 MaxTemp = output_file['Tj_max_IGBT']
 
@@ -81,17 +83,14 @@ def tj_hold_runner(file_values, input_file_values):
             output_file_temp_2 = [y for y in output_file.keys()]
         input_file_temp_2 = np.transpose(input_file_temp_2)
         output_file_temp_3 = np.transpose(output_file_temp_3)
-        print(output_file_temp_3)
         output_file_dict = {output_file_temp_2[x]: output_file_temp_3[x] for x in range(len(output_file_temp_2))}
         input_file_dict = {input_file_values_temp_2[x]: input_file_temp_2[x] for x in range(len(input_file_values_temp_2))}
-        print(output_file_dict)
-        print(input_file_dict)
         full_file_dict = {**input_file_dict, **output_file_dict}
-        print(full_file_dict)
     else:
         output_file = original_sim.m_sim_output_calc(file_values, input_file_values)
         full_file_dict = {**input_file_values, **output_file}
     return full_file_dict
+
 
 def mark_sim_runner(file_values, input_file_values):
     if len(input_file_values['Vcc [V]']) > 1:
@@ -110,13 +109,9 @@ def mark_sim_runner(file_values, input_file_values):
             output_file_temp_2 = [y for y in output_file.keys()]
         input_file_temp_2 = np.transpose(input_file_temp_2)
         output_file_temp_3 = np.transpose(output_file_temp_3)
-        print(output_file_temp_3)
         output_file_dict = {output_file_temp_2[x]: output_file_temp_3[x] for x in range(len(output_file_temp_2))}
         input_file_dict = {input_file_values_temp_2[x]: input_file_temp_2[x] for x in range(len(input_file_values_temp_2))}
-        print(output_file_dict)
-        print(input_file_dict)
         full_file_dict = {**input_file_dict, **output_file_dict}
-        print(full_file_dict)
     else:
         output_file = original_sim.m_sim_output_calc(file_values, input_file_values)
         full_file_dict = {**input_file_values, **output_file}
@@ -152,7 +147,6 @@ def output_file_writer(output_file):
                'T\u2C7C Max FWD [\u00B0C]'
                ]
     output_file_name = 'output' + time.strftime("__%b_%d__%H_%M_%S") + '.xlsx'
-    print(type(output_file))
     df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in output_file.items()]), columns=columns).T
     df.to_excel(output_file_name)
     f = open(output_file_name)
@@ -198,71 +192,48 @@ def module_file_reader(module_file):
     # module_string = 'module_file_revised.csv'
     module_string = module_file
 
-    row_list = [["module_name",
-                 "ic_from_vcesat_25",
-                 "vcesat_from_vcesat_25",
-                 "ic_from_vcesat_125",
-                 "vcesat_from_vcesat_125",
-                 "ic_from_vcesat_150",
-                 "vcesat_from_vcesat_150",
-                 "ie_from_vecsat_25",
-                 "vecsat_from_vecsat_25",
-                 "ie_from_vecsat_125",
-                 "vecsat_from_vecsat_125",
-                 "ie_from_vecsat_150",
-                 "vecsat_from_vecsat_150",
-                 "ic_from_e_sw_on_125",
-                 "e_sw_on_from_e_sw_on_125",
-                 "ic_from_e_sw_on_150",
-                 "e_sw_on_from_e_sw_on_150",
-                 "ic_from_e_sw_off_125",
-                 "e_sw_off_from_e_sw_off_125",
-                 "ic_from_e_sw_off_150",
-                 "e_sw_off_from_e_sw_off_150",
-                 "ic_from_e_rr_125",
-                 "e_rr_from_e_rr_125",
-                 "ic_from_e_rr_150",
-                 "e_rr_from_e_rr_150",
-                 "e_on_from_e_on_125",
-                 "e_rg_from_e_on_125",
-                 "e_on_from_e_on_150",
-                 "e_rg_from_e_on_150",
-                 "e_off_from_e_off_125",
-                 "e_rg_from_e_off_125",
-                 "e_off_from_e_off_150",
-                 "e_rg_from_e_off_150",
-                 "e_rr_from_e_rg_125",
-                 "e_rg_from_e_rg_125",
-                 "e_rr_from_e_rg_150",
-                 "e_rg_from_e_rg_150",
-                 "igbt_r1_per_r0_value",
-                 "igbt_r2_per_j0_value",
-                 "igbt_r3_per_t0_value",
-                 "igbt_r4_per_r1_value",
-                 "igbt_t1_per_j1_value",
-                 "igbt_t2_per_t1_value",
-                 "igbt_t3_value",
-                 "igbt_t4_value",
-                 "fwd_r1a_per_rd0_value",
-                 "fwd_r2a_per_jd0_value",
-                 "fwd_r3a_per_td0_value",
-                 "fwd_r4a_per_rd1_value",
-                 "fwd_t1a_per_jd1_value",
-                 "fwd_t2a_per_td1_value",
-                 "fwd_t3_value",
-                 "fwd_t4_value",
-                 "rth_tr_value",
-                 "rth_di_value",
-                 "rth_thermal_contact",
-                 "vcc_value",
-                 "current_value"
+    row_list = [["Module Name",
+                 "IC - IC VCE",
+                 "VCE - IC VCE",
+                 "IF - IF VF",
+                 "VF - IF VF",
+                 "IC - IC ESWON",
+                 "ESWON - IC ESWON",
+                 "IC - IC ESWOFF",
+                 "ESWOFF - IC ESWOFF",
+                 "IC - IC ERR",
+                 "ERR - IC ERR",
+                 "ESWON - ESWON RGON",
+                 "RGON - ESWON RGON",
+                 "ESWOFF - ESWOFF RGOFF",
+                 "RGOFF - ESWOFF RGOFF",
+                 "ERR - ERR RGON",
+                 "RGON - ERR RGON",
+                 "IGBT R Values",
+                 "IGBT T Values",
+                 "FWD R Values",
+                 "FWD T Values",
+                 "IGBT RTH DC",
+                 "FWD RTH DC",
+                 "Module RTH DC",
+                 "Nameplate VCC",
+                 "Nameplate Current"
                  ]]
 
-    if not os.path.exists(module_file) and not os.path.exists(module_string):
-        with open(module_file, 'w+') as file:
-            writer = csv.writer(file)
-            writer.writerows(row_list)
-        file.close()
+    # if not os.path.exists(module_file) and not os.path.exists(module_string):
+    #     with open(module_file, 'w+') as file:
+    #         writer = csv.writer(file)
+    #         writer.writerows(row_list)
+    #     file.close()
+
+    if not os.path.exists(module_file):
+        workbook = xlsxwriter.Workbook(module_file)
+        worksheet = workbook.add_worksheet()
+        worksheet.set_column('A:A', 20)
+        row_list_map = row_list[0]
+        for x in range(len(row_list_map)):
+            worksheet.write(0, x + 1, row_list_map[x])
+        workbook.close()
 
     row_list = row_list[0]
     value_dict = {}
@@ -277,75 +248,41 @@ def module_file_reader(module_file):
 
 
 def module_file_updated_writer(file_values):
-    column_list = ["module_name",
-                   "ic_from_vcesat_25",
-                   "vcesat_from_vcesat_25",
-                   "ic_from_vcesat_125",
-                   "vcesat_from_vcesat_125",
-                   "ic_from_vcesat_150",
-                   "vcesat_from_vcesat_150",
-                   "ie_from_vecsat_25",
-                   "vecsat_from_vecsat_25",
-                   "ie_from_vecsat_125",
-                   "vecsat_from_vecsat_125",
-                   "ie_from_vecsat_150",
-                   "vecsat_from_vecsat_150",
-                   "ic_from_e_sw_on_125",
-                   "e_sw_on_from_e_sw_on_125",
-                   "ic_from_e_sw_on_150",
-                   "e_sw_on_from_e_sw_on_150",
-                   "ic_from_e_sw_off_125",
-                   "e_sw_off_from_e_sw_off_125",
-                   "ic_from_e_sw_off_150",
-                   "e_sw_off_from_e_sw_off_150",
-                   "ic_from_e_rr_125",
-                   "e_rr_from_e_rr_125",
-                   "ic_from_e_rr_150",
-                   "e_rr_from_e_rr_150",
-                   "e_on_from_e_on_125",
-                   "e_rg_from_e_on_125",
-                   "e_on_from_e_on_150",
-                   "e_rg_from_e_on_150",
-                   "e_off_from_e_off_125",
-                   "e_rg_from_e_off_125",
-                   "e_off_from_e_off_150",
-                   "e_rg_from_e_off_150",
-                   "e_rr_from_e_rg_125",
-                   "e_rg_from_e_rg_125",
-                   "e_rr_from_e_rg_150",
-                   "e_rg_from_e_rg_150",
-                   "igbt_r1_per_r0_value",
-                   "igbt_r2_per_j0_value",
-                   "igbt_r3_per_t0_value",
-                   "igbt_r4_per_r1_value",
-                   "igbt_t1_per_j1_value",
-                   "igbt_t2_per_t1_value",
-                   "igbt_t3_value",
-                   "igbt_t4_value",
-                   "fwd_r1a_per_rd0_value",
-                   "fwd_r2a_per_jd0_value",
-                   "fwd_r3a_per_td0_value",
-                   "fwd_r4a_per_rd1_value",
-                   "fwd_t1a_per_jd1_value",
-                   "fwd_t2a_per_td1_value",
-                   "fwd_t3_value",
-                   "fwd_t4_value",
-                   "rth_tr_value",
-                   "rth_di_value",
-                   "rth_thermal_contact",
-                   "vcc_value",
-                   "current_value"
+    column_list = ["Module Name",
+                   "IC - IC VCE",
+                   "VCE - IC VCE",
+                   "IF - IF VF",
+                   "VF - IF VF",
+                   "IC - IC ESWON",
+                   "ESWON - IC ESWON",
+                   "IC - IC ESWOFF",
+                   "ESWOFF - IC ESWOFF",
+                   "IC - IC ERR",
+                   "ERR - IC ERR",
+                   "ESWON - ESWON RGON",
+                   "RGON - ESWON RGON",
+                   "ESWOFF - ESWOFF RGOFF",
+                   "RGOFF - ESWOFF RGOFF",
+                   "ERR - ERR RGON",
+                   "RGON - ERR RGON",
+                   "IGBT R Values",
+                   "IGBT T Values",
+                   "FWD R Values",
+                   "FWD T Values",
+                   "IGBT RTH DC",
+                   "FWD RTH DC",
+                   "Module RTH DC",
+                   "Nameplate VCC",
+                   "Nameplate Current"
                    ]
 
-    module_file = 'module_file_revised.csv'
-    print(type(file_values))
+    module_file = 'module_file_revised.xlsx'
     df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in file_values.items()]), columns=column_list)
-    df.to_csv(module_file)
+    df.to_excel(module_file)
 
 
 def pull_data_from_column(module_file, column_string, indexcol):
     df = pd.read_excel(module_file, index_col=indexcol)
-    print(df.columns)
     x = df[column_string].as_matrix()
     # df.dropna()
     x = x[~np.isnan(x)]
@@ -454,39 +391,23 @@ def esw_rg_fixer(esw_ic_esw, ic_ic_esw, esw_rg_esw, ic):
 
 def file_value_checker(file_values):
     threshold = 10
-    current_value = file_values["current_value"]
+    current_value = file_values["Nameplate Current"]
 
-    file_values["ic_from_vcesat_25"], file_values["vcesat_from_vcesat_25"] = array_flipper(file_values["ic_from_vcesat_25"], file_values["vcesat_from_vcesat_25"])
-    file_values["ic_from_vcesat_125"], file_values["vcesat_from_vcesat_125"] = array_flipper(file_values["ic_from_vcesat_125"], file_values["vcesat_from_vcesat_125"])
-    file_values["ic_from_vcesat_150"], file_values["vcesat_from_vcesat_150"] = array_flipper(file_values["ic_from_vcesat_150"], file_values["vcesat_from_vcesat_150"])
-    file_values["ie_from_vecsat_25"], file_values["vecsat_from_vecsat_25"] = array_flipper(file_values["ie_from_vecsat_25"], file_values["vecsat_from_vecsat_25"])
-    file_values["ie_from_vecsat_125"], file_values["vecsat_from_vecsat_125"] = array_flipper(file_values["ie_from_vecsat_125"], file_values["vecsat_from_vecsat_125"])
-    file_values["ie_from_vecsat_150"], file_values["vecsat_from_vecsat_150"] = array_flipper(file_values["ie_from_vecsat_150"], file_values["vecsat_from_vecsat_150"])
-    file_values["ic_from_e_sw_on_125"], file_values["e_sw_on_from_e_sw_on_125"] = array_flipper(file_values["ic_from_e_sw_on_125"], file_values["e_sw_on_from_e_sw_on_125"])
-    file_values["ic_from_e_sw_on_150"], file_values["e_sw_on_from_e_sw_on_150"] = array_flipper(file_values["ic_from_e_sw_on_150"], file_values["e_sw_on_from_e_sw_on_150"])
-    file_values["ic_from_e_sw_off_125"], file_values["e_sw_off_from_e_sw_off_125"] = array_flipper(file_values["ic_from_e_sw_off_125"], file_values["e_sw_off_from_e_sw_off_125"])
-    file_values["ic_from_e_sw_off_150"], file_values["e_sw_off_from_e_sw_off_150"] = array_flipper(file_values["ic_from_e_sw_off_150"], file_values["e_sw_off_from_e_sw_off_150"])
-    file_values["ic_from_e_rr_125"], file_values["e_rr_from_e_rr_125"] = array_flipper(file_values["ic_from_e_rr_125"], file_values["e_rr_from_e_rr_125"])
-    file_values["ic_from_e_rr_150"], file_values["e_rr_from_e_rr_150"] = array_flipper(file_values["ic_from_e_rr_150"], file_values["e_rr_from_e_rr_150"])
-    file_values["e_rg_from_e_on_125"], file_values["e_on_from_e_on_125"] = array_flipper(file_values["e_rg_from_e_on_125"], file_values["e_on_from_e_on_125"])
-    file_values["e_rg_from_e_on_150"], file_values["e_on_from_e_on_150"] = array_flipper(file_values["e_rg_from_e_on_150"], file_values["e_on_from_e_on_150"])
-    file_values["e_rg_from_e_off_125"], file_values["e_off_from_e_off_125"] = array_flipper(file_values["e_rg_from_e_off_125"], file_values["e_off_from_e_off_125"])
-    file_values["e_rg_from_e_off_150"], file_values["e_off_from_e_off_150"] = array_flipper(file_values["e_rg_from_e_off_150"], file_values["e_off_from_e_off_150"])
-    file_values["e_rg_from_e_rg_125"], file_values["e_rr_from_e_rg_125"] = array_flipper(file_values["e_rg_from_e_rg_125"], file_values["e_rr_from_e_rg_125"])
-    file_values["e_rg_from_e_rg_150"], file_values["e_rr_from_e_rg_150"] = array_flipper(file_values["e_rg_from_e_rg_150"], file_values["e_rr_from_e_rg_150"])
+    file_values["IC - IC VCE"], file_values["VCE - IC VCE"] = array_flipper(file_values["IC - IC VCE"], file_values["VCE - IC VCE"])
+    file_values["IF - IF VF"], file_values["VF - IF VF"] = array_flipper(file_values["IF - IF VF"], file_values["VF - IF VF"])
+    file_values["IC - IC ESWON"], file_values["ESWON - IC ESWON"] = array_flipper(file_values["IC - IC ESWON"], file_values["ESWON - IC ESWON"])
+    file_values["IC - IC ESWOFF"], file_values["ESWOFF - IC ESWOFF"] = array_flipper(file_values["IC - IC ESWOFF"], file_values["ESWOFF - IC ESWOFF"])
+    file_values["IC - IC ERR"], file_values["ERR - IC ERR"] = array_flipper(file_values["IC - IC ERR"], file_values["ERR - IC ERR"])
+    file_values["RGON - ESWON RGON"], file_values["ESWON - ESWON RGON"] = array_flipper(file_values["RGON - ESWON RGON"], file_values["ESWON - ESWON RGON"])
+    file_values["RGOFF - ESWOFF RGOFF"], file_values["ESWOFF - ESWOFF RGOFF"] = array_flipper(file_values["RGOFF - ESWOFF RGOFF"], file_values["ESWOFF - ESWOFF RGOFF"])
+    file_values["RGON - ERR RGON"], file_values["ERR - ERR RGON"] = array_flipper(file_values["RGON - ERR RGON"], file_values["ERR - ERR RGON"])
 
-    file_values['e_on_from_e_on_125'] = esw_rg_checker(file_values['e_on_from_e_on_125'], file_values['e_sw_on_from_e_sw_on_125'], file_values['ic_from_e_sw_on_125'],
+    file_values["ESWON - ESWON RGON"] = esw_rg_checker(file_values["ESWON - ESWON RGON"], file_values["ESWON - IC ESWON"], file_values["IC - IC ESWON"],
                                                        current_value, threshold)
-    file_values['e_on_from_e_on_150'] = esw_rg_checker(file_values['e_on_from_e_on_150'], file_values['e_sw_on_from_e_sw_on_150'], file_values['ic_from_e_sw_on_150'],
-                                                       current_value, threshold)
-    file_values['e_off_from_e_off_125'] = esw_rg_checker(file_values['e_off_from_e_off_125'], file_values['e_sw_off_from_e_sw_off_125'], file_values['ic_from_e_sw_off_125'],
-                                                         current_value, threshold)
 
-    file_values['e_off_from_e_off_150'] = esw_rg_checker(file_values['e_off_from_e_off_150'], file_values['e_sw_off_from_e_sw_off_150'], file_values['ic_from_e_sw_off_150'],
-                                                         current_value, threshold)
-    file_values['e_rr_from_e_rg_125'] = esw_rg_checker(file_values['e_rr_from_e_rg_125'], file_values['e_rr_from_e_rr_125'], file_values['ic_from_e_rr_125'], current_value,
-                                                       threshold)
-    file_values['e_rr_from_e_rg_150'] = esw_rg_checker(file_values['e_rr_from_e_rg_150'], file_values['e_rr_from_e_rr_150'], file_values['ic_from_e_rr_150'], current_value,
+    file_values["ESWOFF - IC ESWOFF"] = esw_rg_checker(file_values["ESWOFF - IC ESWOFF"], file_values["ESWOFF - IC ESWOFF"], file_values["IC - IC ESWOFF"],
+                                                       current_value, threshold)
+    file_values["ERR - ERR RGON"] = esw_rg_checker(file_values["ERR - ERR RGON"], file_values["ERR - IC ERR"], file_values["IC - IC ERR"], current_value,
                                                        threshold)
 
     return file_values

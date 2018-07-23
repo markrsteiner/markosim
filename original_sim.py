@@ -6,9 +6,6 @@ import tcmax
 
 
 def m_sim_output_calc(file_values, input_file_values):
-    # ins = sim_tools.InputFile(input_file_values)
-    # refs = sim_tools.InputFile(file_values)
-
     input_bus_voltage = float(input_file_values['Vcc [V]'])
     input_ic_peak = float(input_file_values['Io [Apk]'])
     power_factor = float(input_file_values['PF [cos(\u03D5)]'])
@@ -19,46 +16,29 @@ def m_sim_output_calc(file_values, input_file_values):
     input_rg_on = float(input_file_values['rg on [\u03A9]'])
     input_rg_off = float(input_file_values['rg off [\u03A9]'])
 
-    ic_from_vcesat_125 = file_values['ic_from_vcesat_125']
-    vcesat_from_vcesat_125 = file_values['vcesat_from_vcesat_125']
-    ie_from_vecsat_125 = file_values['ie_from_vecsat_125']
-    vecsat_from_vecsat_125 = file_values['vecsat_from_vecsat_125']
-    ic_from_e_sw_on_125 = file_values['ic_from_e_sw_on_125']
-    e_sw_on_from_e_sw_on_125 = file_values['e_sw_on_from_e_sw_on_125']
-    ic_from_e_sw_off_125 = file_values['ic_from_e_sw_off_125']
-    e_sw_off_from_e_sw_off_125 = file_values['e_sw_off_from_e_sw_off_125']
-    ic_from_e_rr_125 = file_values['ic_from_e_rr_125']
-    e_rr_from_e_rr_125 = file_values['e_rr_from_e_rr_125']
-    e_rg_from_e_on_125 = file_values['e_rg_from_e_on_125']
-    e_on_from_e_on_125 = file_values['e_on_from_e_on_125']
-    e_rg_from_e_off_125 = file_values['e_rg_from_e_off_125']
-    e_off_from_e_off_125 = file_values['e_off_from_e_off_125']
-    e_rg_from_e_rg_125 = file_values['e_rg_from_e_rg_125']
-    e_rr_from_e_rg_125 = file_values['e_rr_from_e_rg_125']
+    ic__ic_vce = file_values["IC - IC VCE"]
+    vce__ic_vce = file_values["VCE - IC VCE"]
+    if__if_vf = file_values["IF - IF VF"]
+    vf__if_vf = file_values["VF - IF VF"]
+    ic__ic_eswon = file_values["IC - IC ESWON"]
+    eswon__ic_eswon = file_values["ESWON - IC ESWON"]
+    ic__ic_eswoff = file_values["IC - IC ESWOFF"]
+    eswoff__ic_eswoff = file_values["ESWOFF - IC ESWOFF"]
+    ic__ic_err = file_values["IC - IC ERR"]
+    err__ic_err = file_values["ERR - IC ERR"]
+    rgon__rgon_eswon = file_values["RGON - ESWON RGON"]
+    eswon__rgon_eswon = file_values["ESWON - ESWON RGON"]
+    rgoff__rgoff_eswoff = file_values["RGOFF - ESWOFF RGOFF"]
+    eswoff__rgoff_eswoff = file_values["ESWOFF - ESWOFF RGOFF"]
+    rgon__rgon_err = file_values["RGON - ERR RGON"]
+    err__rgon_err = file_values["ERR - ERR RGON"]
 
-    ic_from_vcesat = ic_from_vcesat_125
-    vcesat_from_vcesat = vcesat_from_vcesat_125
-    ie_from_vecsat = ie_from_vecsat_125
-    vecsat_from_vecsat = vecsat_from_vecsat_125
-    ic_from_e_sw_on = ic_from_e_sw_on_125
-    e_sw_on_from_e_sw_on = e_sw_on_from_e_sw_on_125
-    ic_from_e_sw_off = ic_from_e_sw_off_125
-    e_sw_off_from_e_sw_off = e_sw_off_from_e_sw_off_125
-    ic_from_e_rr = ic_from_e_rr_125
-    e_rr_from_e_rr = e_rr_from_e_rr_125
-    e_rg_from_e_on = e_rg_from_e_on_125
-    e_on_from_e_on = e_on_from_e_on_125
-    e_rg_from_e_off = e_rg_from_e_off_125
-    e_off_from_e_off = e_off_from_e_off_125
-    e_rg_from_e_rg = e_rg_from_e_rg_125
-    e_rr_from_e_rg = e_rr_from_e_rg_125
-
-    ic_from_e_sw_on = sim_tools.origin_checker(ic_from_e_sw_on)
-    e_sw_on_from_e_sw_on = sim_tools.origin_checker(e_sw_on_from_e_sw_on)
-    ic_from_e_sw_off = sim_tools.origin_checker(ic_from_e_sw_off)
-    e_sw_off_from_e_sw_off = sim_tools.origin_checker(e_sw_off_from_e_sw_off)
-    ic_from_e_rr = sim_tools.origin_checker(ic_from_e_rr)
-    e_rr_from_e_rr = sim_tools.origin_checker(e_rr_from_e_rr)
+    ic__ic_eswon = sim_tools.origin_checker(ic__ic_eswon)
+    eswon__ic_eswon = sim_tools.origin_checker(eswon__ic_eswon)
+    ic__ic_eswoff = sim_tools.origin_checker(ic__ic_eswoff)
+    eswoff__ic_eswoff = sim_tools.origin_checker(eswoff__ic_eswoff)
+    ic__ic_err = sim_tools.origin_checker(ic__ic_err)
+    err__ic_err = sim_tools.origin_checker(err__ic_err)
 
     power_factor_phi = math.acos(power_factor) * 180 / math.pi
     step = int(1)
@@ -97,71 +77,66 @@ def m_sim_output_calc(file_values, input_file_values):
             output_voltage[0] += (output_voltage[1] + output_voltage[2]) / 2.0
 
         output_current = input_ic_peak * math.sin((rad_delta - power_factor_phi) / 180 * math.pi)
-        igbt_current = diode_current = 0.0
+        igbt_current = fwd_current = 0.0
         if output_current > 0.0:
             igbt_current = output_current
         else:
-            diode_current = -output_current
+            fwd_current = -output_current
 
         if igbt_current >= 0.0:
-            # vce_at_ic = np.interp(igbt_current, ic_from_vcesat, vcesat_from_vcesat)
-            icvce = sp.interpolate.interp1d(ic_from_vcesat, vcesat_from_vcesat, fill_value='extrapolate')
-            vce_at_ic = icvce(igbt_current)
+            ic_vce_interp_curve = sp.interpolate.interp1d(ic__ic_vce, vce__ic_vce, fill_value='extrapolate')
+            vce_at_igbt_current = ic_vce_interp_curve(igbt_current)
 
-            igbt_p_vce = igbt_current * time_division * vce_at_ic * output_voltage[0] / input_bus_voltage / 1000.0
+            igbt_p_vce = igbt_current * time_division * vce_at_igbt_current * output_voltage[0] / input_bus_voltage / 1000.0
 
-            # e_sw_on_at_ic = np.interp(igbt_current, ic_from_e_sw_on, e_sw_on_from_e_sw_on)
-            iceswon = sp.interpolate.interp1d(ic_from_e_sw_on, e_sw_on_from_e_sw_on, fill_value='extrapolate')
-            e_sw_on_at_ic = iceswon(igbt_current)
-            # e_sw_off_at_ic = np.interp(igbt_current, ic_from_e_sw_off, e_sw_off_from_e_sw_off)
-            iceswoff = sp.interpolate.interp1d(ic_from_e_sw_off, e_sw_off_from_e_sw_off, fill_value='extrapolate')
-            e_sw_off_at_ic = iceswoff(igbt_current)
+            ic_eswon_interp_curve = sp.interpolate.interp1d(ic__ic_eswon, eswon__ic_eswon, fill_value='extrapolate')
+            eswon_at_igbt_current = ic_eswon_interp_curve(igbt_current)
+            ic_eswoff_interp_curve = sp.interpolate.interp1d(ic__ic_eswoff, eswoff__ic_eswoff, fill_value='extrapolate')
+            eswoff_at_igbt_current = ic_eswoff_interp_curve(igbt_current)
             if 1.0 > output_voltage[0] / input_bus_voltage > 0.0:
-                igbt_e_sw_on_fco_ratio = switches_per_cycle_per_degree * e_sw_on_at_ic
-                igbt_e_sw_off_fco_ratio = switches_per_cycle_per_degree * e_sw_off_at_ic
-        if diode_current >= 0.0:
-            # vec_at_ic = np.interp(diode_current, ie_from_vecsat, vecsat_from_vecsat)
-            ievec = sp.interpolate.interp1d(ie_from_vecsat, vecsat_from_vecsat, fill_value='extrapolate')
-            vec_at_ic = ievec(diode_current)
-            fwd_p_vce = diode_current * time_division * vec_at_ic * output_voltage[0] / input_bus_voltage / 1000.0
-            # err_from_ic = np.interp(diode_current, ic_from_e_rr, e_rr_from_e_rr)
-            icerr = sp.interpolate.interp1d(ic_from_e_rr, e_rr_from_e_rr, fill_value='extrapolate')
-            err_from_ic = icerr(diode_current)
+                igbt_e_sw_on_fco_ratio = switches_per_cycle_per_degree * eswon_at_igbt_current
+                igbt_e_sw_off_fco_ratio = switches_per_cycle_per_degree * eswoff_at_igbt_current
+        if fwd_current >= 0.0:
+            if_vf_interp_curve = sp.interpolate.interp1d(if__if_vf, vf__if_vf, fill_value='extrapolate')
+            vf_at_fwd_current = if_vf_interp_curve(fwd_current)
+            fwd_p_vce = fwd_current * time_division * vf_at_fwd_current * output_voltage[0] / input_bus_voltage / 1000.0
+            ic_err_interp_curve = sp.interpolate.interp1d(ic__ic_err, err__ic_err, fill_value='extrapolate')
+            err_at_fwd_current = ic_err_interp_curve(fwd_current)
         if 1.0 > output_voltage[0] / input_bus_voltage > 0.0:
-            fwd_e_rr_fco_ratio = switches_per_cycle_per_degree * err_from_ic
+            fwd_e_rr_fco_ratio = switches_per_cycle_per_degree * err_at_fwd_current
 
-        vcc_ratio = input_bus_voltage / file_values['vcc_value']
+        vcc_ratio = input_bus_voltage / sim_tools.vcc_value_decoder(file_values["Nameplate VCC"])
 
-        e_sw_on_from_rg_e_sw_on = np.interp(input_rg_on, e_rg_from_e_on, e_on_from_e_on)
+        eswon_rgon_interp = np.interp(input_rg_on, rgon__rgon_eswon, eswon__rgon_eswon)
 
-        e_sw_off_from_rg_e_sw_off = np.interp(input_rg_off, e_rg_from_e_off, e_off_from_e_off)
+        eswoff_rgoff_interp = np.interp(input_rg_off, rgoff__rgoff_eswoff, eswoff__rgoff_eswoff)
 
-        errFromRgErr = np.interp(input_rg_on, e_rg_from_e_rg, e_rr_from_e_rg)
+        err_rgon_interp = np.interp(input_rg_on, rgon__rgon_err, err__rgon_err)
 
         output_current_tot.append(output_current)
         output_voltage_tot.append(output_voltage[0])
 
         p_igbt_cond.append(igbt_p_vce * freq_output / 1000.0)
-        e_sw_on.append(igbt_e_sw_on_fco_ratio * freq_output / 1000.0 * vcc_ratio * e_sw_on_from_rg_e_sw_on)
-        e_sw_off.append(igbt_e_sw_off_fco_ratio * freq_output / 1000.0 * vcc_ratio * e_sw_off_from_rg_e_sw_off)
+        e_sw_on.append(igbt_e_sw_on_fco_ratio * freq_output / 1000.0 * vcc_ratio * eswon_rgon_interp)
+        e_sw_off.append(igbt_e_sw_off_fco_ratio * freq_output / 1000.0 * vcc_ratio * eswoff_rgoff_interp)
         e_sw_fco.append(igbt_e_sw_off_fco_ratio)
         e_sw_igbt.append((
-                                 igbt_e_sw_on_fco_ratio * vcc_ratio * e_sw_on_from_rg_e_sw_on + igbt_e_sw_off_fco_ratio * vcc_ratio * e_sw_off_from_rg_e_sw_off) * freq_output / 1000.0)
+                                 igbt_e_sw_on_fco_ratio * vcc_ratio * eswon_rgon_interp + igbt_e_sw_off_fco_ratio * vcc_ratio * eswoff_rgoff_interp) * freq_output / 1000.0)
         p_fwd_cond.append(fwd_p_vce * freq_output / 1000.0)
-        e_sw_err.append(fwd_e_rr_fco_ratio * freq_output / 1000.0 * vcc_ratio * errFromRgErr)
+        e_sw_err.append(fwd_e_rr_fco_ratio * freq_output / 1000.0 * vcc_ratio * err_rgon_interp)
         p_igbt.append((
-                              igbt_e_sw_on_fco_ratio * vcc_ratio * e_sw_on_from_rg_e_sw_on + igbt_e_sw_off_fco_ratio * vcc_ratio * e_sw_off_from_rg_e_sw_off) * freq_output / 1000.0 + igbt_p_vce * freq_output / 1000.0)
+                              igbt_e_sw_on_fco_ratio * vcc_ratio * eswon_rgon_interp + igbt_e_sw_off_fco_ratio * vcc_ratio * eswoff_rgoff_interp) * freq_output / 1000.0 + igbt_p_vce * freq_output / 1000.0)
         p_fwd.append(
-            fwd_e_rr_fco_ratio * errFromRgErr * freq_output / 1000.0 * vcc_ratio + fwd_p_vce * freq_output / 1000.0)
+            fwd_e_rr_fco_ratio * err_rgon_interp * freq_output / 1000.0 * vcc_ratio + fwd_p_vce * freq_output / 1000.0)
         p_total_igbt.append((igbt_p_vce + (
-                igbt_e_sw_on_fco_ratio * e_sw_on_from_rg_e_sw_on + igbt_e_sw_off_fco_ratio * e_sw_off_from_rg_e_sw_off) * vcc_ratio) / time_division * 1000)
-        p_total_fwd.append((fwd_p_vce + fwd_e_rr_fco_ratio * errFromRgErr * vcc_ratio) / time_division * 1000)
+                igbt_e_sw_on_fco_ratio * eswon_rgon_interp + igbt_e_sw_off_fco_ratio * eswoff_rgoff_interp) * vcc_ratio) / time_division * 1000)
+        p_total_fwd.append((fwd_p_vce + fwd_e_rr_fco_ratio * err_rgon_interp * vcc_ratio) / time_division * 1000)
         p_arm.append(p_igbt[degree_count - 1] + p_fwd[degree_count - 1])
         degree_count += step
 
-    delta_tj__igbt = np.sum(p_igbt) * file_values['rth_tr_value']
-    delta_tj__fwd = np.sum(p_fwd) * file_values['rth_di_value']
-    delta_tc = np.sum(p_arm) * file_values['rth_thermal_contact'] + input_tc
+    delta_tj__igbt = np.sum(p_igbt) * file_values["IGBT RTH DC"]
+    delta_tj__fwd = np.sum(p_fwd) * file_values["FWD RTH DC"]
+    delta_tc = np.sum(p_arm) * file_values["Module RTH DC"] + input_tc
     tj_igbt = delta_tj__igbt + delta_tc
     tj_fwd = delta_tj__fwd + delta_tc
 
